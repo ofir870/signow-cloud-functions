@@ -7,20 +7,32 @@ const db = admin.firestore();
 // ON CREATE
 // triggerd when user registerd and make a new user in fire-store-DB 
 
+
 exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
+
+
+    // check if email is taken 
+    // yes => check if the disabled is
+    // no  => send err massage 
+    // yes => update the doc with the user data.
+    // no: go on update the doc with the user data.
+
+    // getAllUsers
+   
+      
 
     const data = {
         "full-name": user.displayName,
         "user-name": " " ,
         "birth-date": " ",
         "disabled": user.disabled,
-        "role": "",
+        "role": user.role,
         "phone": 0,
         "creation": user.metadata.creationTime,
         "creditCard": 0,
         "fullName": null,
         "id": user.uid,
-        "email": "",
+        "email": user.email,
         "identityNumber": 0,
         "address": {},
         "gender": null,
@@ -28,7 +40,7 @@ exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
         "orginizatoin":" orginization id",
         "timestamp":{"craetion":new Date().getTime, "lastLogin":null,"activity":null}
     }
-    console.log(user)
+    
     return db.collection('users').doc(user.uid).set(JSON.parse(JSON.stringify(data)));
 });
 
@@ -52,40 +64,42 @@ exports.ChangeRoleInter = functions.firestore.document('inters-data/{userId}').o
     )
 })
 
-exports.OnDelete = functions.auth.user().onDelete((user) => {
+exports.OnDelete = functions.auth.user().onDelete(async(user) => {
     const data = {
         "email": user.email,
         "disabled": true,
         "id": user.uid
     }    
+
+   let snapshot = await db.collection('users').doc(user.id)
+    role = snapshot.data().role;
     let batch = db.batch();
 
-    if(user.role==="customer"){
+    if(role === "customer"){
         let deleteCustomer = db.collection('customers-data').doc(user.uid)
-        
-
+    
         batch.delete(deleteCustomer);
     }
-    if(user.role==="inter"){
+    if(role === "inter"){
         let deleteInter = db.collection('inters-data').doc(user.uid)
     
         batch.delete(deleteInter);
     }
 
+    // if(role === "orginization"){
+    //     let deleteInter = db.collection('inters-data').doc(user.uid)
+    
+    //     batch.delete(deleteInter);
+    // }
     let setUser = db.collection('users').doc(user.uid);
 
     batch.set(setUser, JSON.parse(JSON.stringify(data)));
-
-   
 
     return batch.commit().then(function () {
         return true;
     }).catch(err => {
         return err
     })
-
-
-
 });
 
 //     if(user.role === "customer"){
@@ -103,5 +117,3 @@ exports.OnDelete = functions.auth.user().onDelete((user) => {
     //         .doc(customer.uid)
     //         .delete();
 // })
-
-

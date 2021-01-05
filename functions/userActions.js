@@ -15,5 +15,4 @@ exports.UpdateLastLogin = functions.https.onCall((data, context) => {
 
     return db.collection('users').doc(context.auth.uid).update(newLastLogin);
 
-
 })

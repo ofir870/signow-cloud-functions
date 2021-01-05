@@ -19,7 +19,9 @@ exports.CreateInter = functions.https.onCall((data, context) => {
         "hours-of-work": [],
         "score":null,
         "isActive": 20
+    
     }
+    
     let batch = db.batch();
     let setInter = db.collection('inters-data').doc(data.uid);
 
@@ -30,7 +32,6 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 
     batch.set(changeRole, { role: "inter" }, { "merge": true });
 
-
     // Commit the batch
     return batch.commit().then(function () {
 
@@ -38,7 +39,23 @@ exports.CreateInter = functions.https.onCall((data, context) => {
     }).catch(err => {
         return err
     })
+
 })
+
+exports.GetAllInters = functions.https.onCall(async(data, context)  =>  {
+  
+    const intersRef = db.collection('users')
+
+  const snapshot = await intersRef.where("role","==", "inter").get();
+  if (snapshot.empty) {
+    console.log('No matching documents.');
+    return;
+  }  
+  
+  snapshot.forEach(doc => {
+    console.log(doc.id, '=>', doc.data());
+  });
+  })
 exports.SendInterToServer = functions.https.onCall((data, context) => {
     if (!context.auth) {
         // Throwing an HttpsError so that the client gets the error details.
