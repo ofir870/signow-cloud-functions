@@ -4,25 +4,23 @@ const { constants } = require('buffer');
 
 const db = admin.firestore();
 
-
 exports.CreateCustomer = functions.https.onCall((data, context) => {
     
-    console.log(data)
     if (!data.customerID) {
         return  "Missing: customerID"
     }
     if (!data.cardID) {
         return "Missing: cardID"
     }
-    if (!data.orginizationID) {
-        return "Missing: orginizationID"
+    if (!data.code) {
+        return "Missing: code"
     }
 
     const customer = {
         "customer-id": data.customerID,
         "card-id": data.cardID,
         "age": data.age,
-        "orginization-Id": data.orginizationID
+     
     }
 
     let batch = db.batch();
@@ -32,8 +30,11 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
 
     let changeRole = db.collection('users').doc(data.customerID);
+    
+    let changeCode = db.collection('users').doc(data.customerID);
 
-    batch.set(changeRole, { role: "customer" }, { "merge": true });
+    batch.set(changeCode, { "code": data.code }, { "merge": true });
+    batch.set(changeRole, { "role": "customer" }, { "merge": true });
 
     return batch.commit().then(function () {
         return true;
@@ -42,7 +43,7 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     })
 })
 
-
+// get all customer of one orginization
 exports.GetAllCustomers = functions.https.onCall(async(data, context)  =>  {
   
     const customersRef = db.collection('users')
@@ -54,6 +55,8 @@ exports.GetAllCustomers = functions.https.onCall(async(data, context)  =>  {
   }  
   
   snapshot.forEach(doc => {
+
+
     console.log(doc.id, '=>', doc.data());
     
   }); })

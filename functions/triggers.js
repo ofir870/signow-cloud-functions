@@ -7,9 +7,7 @@ const db = admin.firestore();
 // ON CREATE
 // triggerd when user registerd and make a new user in fire-store-DB 
 
-
 exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
-
 
     // check if email is taken 
     // yes => check if the disabled is
@@ -17,9 +15,6 @@ exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
     // yes => update the doc with the user data.
     // no: go on update the doc with the user data.
 
-    // getAllUsers
-   
-      
 
     const data = {
         "full-name": user.displayName,
@@ -37,32 +32,32 @@ exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
         "address": {},
         "gender": null,
         "language": "hebrew",
-        "orginizatoin":" orginization id",
+        "code":"code",
         "timestamp":{"craetion":new Date().getTime, "lastLogin":null,"activity":null}
     }
     
     return db.collection('users').doc(user.uid).set(JSON.parse(JSON.stringify(data)));
 });
 
-// onCreate customer will change is user role to customer
-exports.ChangeRoleCustomer = functions.firestore.document('customer-data/{userId}').onCreate((snap, context) => {
-    return (
-        db
-            .collection('users')
-            .doc(snap.data().customerID)
-            .update({ role: "customer" })
-    )
-})
-// onCreate inter will change is user role to inter
-exports.ChangeRoleInter = functions.firestore.document('inters-data/{userId}').onCreate((snap, context) => {
+// // onCreate customer will change is user role to customer
+// exports.ChangeRoleCustomer = functions.firestore.document('customer-data/{userId}').onCreate((snap, context) => {
+//     return (
+//         db
+//             .collection('users')
+//             .doc(snap.data().customerID)
+//             .update({ role: "customer" })
+//     )
+// })
+// // onCreate inter will change is user role to inter
+// exports.ChangeRoleInter = functions.firestore.document('inters-data/{userId}').onCreate((snap, context) => {
 
-    return (
-        db
-            .collection('users')
-            .doc(snap.data().interID)
-            .update({ role: "inter" })
-    )
-})
+//     return (
+//         db
+//             .collection('users')
+//             .doc(snap.data().interID)
+//             .update({ role: "inter" })
+//     )
+// })
 
 exports.OnDelete = functions.auth.user().onDelete(async(user) => {
     const data = {

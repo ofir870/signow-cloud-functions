@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 // import xlsxFile from 'read-excel-file'
 
 const db = admin.firestore();
+const { backup, backups, initializeApp ,restore } = require('firestore-export-import')
 
 exports.UpdateEntity =  (async(data,ref )  =>  {
    
@@ -27,6 +28,74 @@ exports.UpdateEntity =  (async(data,ref )  =>  {
        
       })
 
+      exports.GetEntity = (async(ref,id)  =>  {
+        
+        const cityRef = db.collection(ref).doc(id);
+        const doc = await cityRef.get();
+        if (!doc.exists) {
+          console.log('No such document!'+"1");
+        } else {
+          // console.log('Document data:', doc.data());
+         return doc.data()
+        }
+      })
+      
+      exports.GetOrginizationCreditByCode = (async(code)  =>  {
+        
+        const orgRef = db.collection("orginization");
+        const snapshot = await orgRef.where("code","==", code).get();
+        let credit;
+        
+        if (snapshot.empty) {
+          console.log('No such document!'+"2");
+        } else {
+
+          snapshot.forEach(doc => {
+           credit = doc.data().credit
+          });
+        
+         return credit
+        }
+      })
+      
+      
+      exports.DecreaseOrginizationCredit = (async(code,credit)  =>  {
+        
+        const orgRef = db.collection("orginization");
+        const snapshot = await orgRef.where("code","==", code).update({"credit":credit});
+      })
+      
+      exports.GetDocParam = (async(ref,id,param)  =>  {
+        
+        const cityRef = db.collection(ref).doc(id);
+        const doc = await cityRef.get();
+        if (!doc.exists) {
+          console.log('No such document!');
+        } else {
+          console.log('Document data:', doc.data());
+         return doc.data()
+        }
+      })
+      
+      exports.UpdateOrginizationCredit = (async(code,credit)  =>  {
+        
+        const orgRef = db.collection("orginization");
+        const snapshot = await orgRef.where("code","==", code).update({"credit":credit});
+      })
+      
+      exports.GetDocParam = (async(ref,id,param)  =>  {
+        
+        const cityRef = db.collection(ref).doc(id);
+        const doc = await cityRef.get();
+        if (!doc.exists) {
+          console.log('No such document!');
+        } else {
+          console.log('Document data:', doc.data());
+         return doc.data()
+        }
+      })
+      
+
 exports.ExcelToJSON = functions.https.onCall((data, context) => {
     const xlsxFile = require('read-excel-file/node');
     
@@ -39,25 +108,22 @@ exports.ExcelToJSON = functions.https.onCall((data, context) => {
 })
 
 
-// HTTP Trigger
+exports.ImportToJSON = functions.https.onCall((data, context) => {
+   
+backup('users').then((dataSend) =>
+console.log(JSON.stringify(dataSend))
+)
+    
+})
+
 exports.GetUsersFromJson = functions.https.onRequest((req, res) => {
-    var request = require('./usersTest.json'); 
-   //  var paramValue = req.body.queryParam;
-    console.log(request);
-   
-   // Option #1 - Using hosted URL
-   const config = require('./usersTest.json');
-   console.log(config);
-   
-   
-    request({
-           url:config,
-           method: 'POST', 
-           json:{ key: 'value' } },function(error, response, data) {
-    });
-     
-   // Option #2 - Ended up here. Want to read from cloud storage bucket.
-   console.log(file);
+    var request = require('../usersTest.json'); 
+    restore(request, {
+        dates: ['date1', 'date1.date2', 'date1.date2.date3'],
+        geos: ['location', 'locations'],
+        refs: ['refKey', 'arrayRef'],
+      })
+
    
    });
    

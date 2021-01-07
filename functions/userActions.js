@@ -10,9 +10,26 @@ exports.UpdateLastLogin = functions.https.onCall((data, context) => {
     const newLastLogin = {
 
         "lastLogin": admin.firestore.FieldValue.arrayUnion(new Date().getTime())
-
     }
-
     return db.collection('users').doc(context.auth.uid).update(newLastLogin);
 
 })
+exports.CheckUserRole = functions.https.onCall((data, context) => {
+
+    const userRef = db.collection('users').doc(data.uid);
+    let getDoc = userRef.get().then(doc =>{
+        if (!doc.exists) {
+            console.log('No such document!');
+            return 'false'
+          } else {
+            console.log(doc.data().role)
+            return doc.data().role
+          }
+        })
+        .catch(err => {
+          console.log('Error getting documentL uid is wrong', err);
+    
+    })
+    return getDoc
+})
+

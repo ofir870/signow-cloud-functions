@@ -12,7 +12,7 @@ exports.CreateInter = functions.https.onCall((data, context) => {
     // }
 
     const inter = {
-        "interpreter-id": data.uid,
+        "interpreter-id": data.interID,
         "certificate-details": '',
         "special": [],
         "avarage-rating": null,
@@ -23,14 +23,14 @@ exports.CreateInter = functions.https.onCall((data, context) => {
     }
     
     let batch = db.batch();
-    let setInter = db.collection('inters-data').doc(data.uid);
+    let setInter = db.collection('inters-data').doc(data.interID);
 
     batch.set(setInter, JSON.parse(JSON.stringify(inter)));
 
     // change role of user to Interpreter
-    let changeRole = db.collection('users').doc(data.uid);
+    let changeRole = db.collection('users').doc(data.interID);
 
-    batch.set(changeRole, { role: "inter" }, { "merge": true });
+    batch.set(changeRole, { "role": "inter" }, { "merge": true });
 
     // Commit the batch
     return batch.commit().then(function () {
