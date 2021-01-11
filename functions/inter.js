@@ -12,13 +12,19 @@ exports.CreateInter = functions.https.onCall((data, context) => {
     // }
 
     const inter = {
-        "interpreter-id": data.interID,
-        "certificate-details": '',
-        "special": [],
-        "avarage-rating": null,
-        "hours-of-work": [],
-        "score":null,
-        "isActive": 20
+        "interpreterID": data.interID,
+        "desc":data.desc,
+        "avarageRating": null,
+        "hoursOfWork": [],
+        "cardID": data.cardID,
+        "phone": data.phone,
+        "address": data.address,
+        'identityNumber': data.identityNumber,
+        'password': data.password,
+        "fullName": data.fullName,
+        "birthDate": data.birthDate,
+        "disabled": false,
+        "role": "inter"
     
     }
     
@@ -55,6 +61,10 @@ exports.GetAllInters = functions.https.onCall(async(data, context)  =>  {
   snapshot.forEach(doc => {
     console.log(doc.id, '=>', doc.data());
   });
+  })
+
+exports.BookEvent = functions.https.onCall(async(data, context)  =>  {
+ 
   })
 exports.SendInterToServer = functions.https.onCall((data, context) => {
     if (!context.auth) {

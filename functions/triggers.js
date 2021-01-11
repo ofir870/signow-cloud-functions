@@ -17,22 +17,17 @@ exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
 
 
     const data = {
-        "full-name": user.displayName,
-        "user-name": " " ,
-        "birth-date": " ",
-        "disabled": user.disabled,
-        "role": user.role,
-        "phone": 0,
-        "creation": user.metadata.creationTime,
-        "creditCard": 0,
-        "fullName": null,
+        "phone": '',
+        "address": '',
+        'identityNumber': '',
+        'password': '',
+        "fullName": '',
+        "birth-date": '',
+        "disabled": false,
+        "role": '',
+        "code":'',
         "id": user.uid,
         "email": user.email,
-        "identityNumber": 0,
-        "address": {},
-        "gender": null,
-        "language": "hebrew",
-        "code":"code",
         "timestamp":{"craetion":new Date().getTime, "lastLogin":null,"activity":null}
     }
     

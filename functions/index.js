@@ -4,6 +4,10 @@ const admin = require('firebase-admin');
 const { backup, backups, initializeApp ,restore } = require('firestore-export-import')
 admin.initializeApp();
 
+
+
+
+
 const customer = require('./customer')
 exports.CreateCustomer = customer.CreateCustomer
 exports.CreateCustomerRating = customer.CreateCustomerRating
@@ -14,6 +18,7 @@ exports.EmailValidation = customer.EmailValidation
 const inter = require('./inter')
 exports.CreateInter = inter.CreateInter
 exports.GetAllInters = inter.GetAllInters
+exports.BookEvent = inter.BookEvent
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
@@ -25,6 +30,7 @@ exports.GetAllEvents = events.GetAllEvents
 exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
 exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomerId
 exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
+exports.DeletePastEvents = events.DeletePastEvents
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
@@ -42,8 +48,11 @@ exports.OnUserSignUp = triggers.OnUserSignUp
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
+exports.GetUserNameById = userActions.GetUserNameById
 
 const utils = require('./utils')
 // exports.ExcelToJSON = utils.ExcelToJSON
 exports.GetUsersFromJson = utils.GetUsersFromJson
 exports.ImportToJSON = utils.ImportToJSON
+exports.SendWhatsApp = utils.SendWhatsApp
+exports.CodeValidation = utils.CodeValidation

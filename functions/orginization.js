@@ -8,9 +8,6 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     if (!data.fullName) {
         return "Missing: fullName"
     }
-    // if (!data.orginizationID) {
-    //     return "Missing: orginizationID"
-    // }
     if (!data.code) {
         return "Missing: code"
     }
@@ -35,19 +32,18 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     if (!data.pricing) {
         return "Missing: pricing"
     }
-
     const orginization = {
         "full-name": data.fullName,
         "email": data.email,
         "code": data.code,
         "phone": data.phone,
-        "contact-man": data.contactMan,
-        "working-hours": data.workingHours,
+        "contactMan": data.contactMan,
+        "workingHours": data.workingHours,
         "address": data.address,
         "pricing": data.pricing,
-        "start-date": new Date().getTime,
+        "startDate": new Date().getTime,
         "credit": data.credit,
-        "credit-used": 0
+        "creditUsed": 0
     }
 
     let batch = db.batch();
@@ -61,7 +57,6 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     }).catch(err => {
         return err
     })
-
 })
 
 // get all customer of one orginization by code in customers-data

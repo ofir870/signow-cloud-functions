@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { constants } = require('buffer');
+
 
 const db = admin.firestore();
 
@@ -17,20 +17,29 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     }
 
     const customer = {
-        "customer-id": data.customerID,
-        "card-id": data.cardID,
-        "age": data.age,
+        "customerID": data.customerID,
+        "cardID": data.cardID,
+        "phone": data.phone,
+        "address": data.address,
+        'identityNumber': data.identityNumber,
+        'password': data.password,
+        "fullName": data.fullName,
+        "birthDate": data.birthDate,
+        "disabled": false,
+        "role": 'inter',
+        "code":data.code,
      
     }
-
+    
+    // validate code
     let batch = db.batch();
 
     let setCustomer = db.collection('customers-data').doc(data.customerID);
 
     batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
 
-    let changeRole = db.collection('users').doc(data.customerID);
     
+    let changeRole = db.collection('users').doc(data.customerID);
     let changeCode = db.collection('users').doc(data.customerID);
 
     batch.set(changeCode, { "code": data.code }, { "merge": true });
