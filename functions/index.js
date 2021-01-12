@@ -82,21 +82,28 @@ app.use('/video', videoRouter);
 app.use('/api', apiRouter);
 
 //setting the build files as static files
-app.use(express.static(path.join(__dirname, 'videochat/build')))
+app.use(express.static(path.join(__dirname, 'videochat/client/build')))
 
 //serving the build index.html opun GET request for <server-url>/videochat
 app.get('/videochat', (req, res) => {
-    res.sendFile(path.join(__dirname, 'videochat/build', 'index.html'))
+    console.log("handle GET api at /videochat");
+    console.log("sending file at " + path.join(__dirname, 'videochat/build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'videochat/client/build', 'index.html'))
   })
 
 //testing api
 app.get('/ping', function (req, res) {
+    console.log("ping api at /ping");
     return res.send('pong');
    });
 
+   app.get('/', function (req, res) {
+       console.log("helloworld api at /");
+    return res.send('helloworld');
+   });
 
 
-//define the serving port to be the VM env port or 8080 on local machine
+// define the serving port to be the VM env port or 8080 on local machine
 // app.listen(process.env.PORT || 8080, () =>
 //   console.log('Express server is running on localhost:8080')
 // );

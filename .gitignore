@@ -17,6 +17,9 @@ firebase-debug.*.log*
 # it commented so all members can deploy to the same project(s) in .firebaserc.
 # .firebaserc
 
+#client build and dependencies
+functions/videochat/client/node_modules
+
 # Runtime data
 pids
 *.pid
