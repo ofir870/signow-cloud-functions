@@ -2,5 +2,23 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": "functions/videochat/client/build",
+    "ignore": [
+      "**/client/node_modules/**"  
+    ],
+    "rewrites": [ {
+      "source": "/videochat",
+      "function": "app"
+    },
+    {
+      "source": "/api",
+      "function": "app"
+    },
+    {
+      "source": "/video/token",
+      "function": "app"
+    } ]
   }
 }

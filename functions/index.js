@@ -56,3 +56,56 @@ exports.GetUsersFromJson = utils.GetUsersFromJson
 exports.ImportToJSON = utils.ImportToJSON
 exports.SendWhatsApp = utils.SendWhatsApp
 exports.CodeValidation = utils.CodeValidation
+
+/* VideoChat Serving app */
+//import dependencies
+const express = require('express');
+const bodyParser = require('body-parser');
+const pino = require('express-pino-logger')();
+const path = require('path');
+const app = express();
+
+/**import routing files
+ * those are the files that contain the function for the innar API
+ * for each routing
+ */
+var videoRouter = require('./videochat/video.js');
+var apiRouter = require('./videochat/api.js');
+
+// express usages for reading jason and creating logs with pino
+app.use(pino);
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+//Routing the API to sub files which will handle them
+app.use('/video', videoRouter);
+app.use('/api', apiRouter);
+
+//setting the build files as static files
+app.use(express.static(path.join(__dirname, 'videochat/client/build')))
+
+//serving the build index.html opun GET request for <server-url>/videochat
+app.get('/videochat', (req, res) => {
+    console.log("handle GET api at /videochat");
+    console.log("sending file at " + path.join(__dirname, 'videochat/build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'videochat/client/build', 'index.html'))
+  })
+
+//testing api
+app.get('/ping', function (req, res) {
+    console.log("ping api at /ping");
+    return res.send('pong');
+   });
+
+   app.get('/', function (req, res) {
+       console.log("helloworld api at /");
+    return res.send('helloworld');
+   });
+
+
+// define the serving port to be the VM env port or 8080 on local machine
+// app.listen(process.env.PORT || 8080, () =>
+//   console.log('Express server is running on localhost:8080')
+// );
+
+exports.app = functions.https.onRequest(app);
