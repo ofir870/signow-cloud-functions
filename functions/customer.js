@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-
+const utils = require('./utils')
 
 const db = admin.firestore();
 
@@ -15,7 +15,6 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     if (!data.code) {
         return "Missing: code"
     }
-
     const customer = {
         "customerID": data.customerID,
         "cardID": data.cardID,
@@ -26,12 +25,13 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
         "fullName": data.fullName,
         "birthDate": data.birthDate,
         "disabled": false,
-        "role": 'inter',
+        "role": 'customer',
         "code":data.code,
      
     }
     
     // validate code
+
     let batch = db.batch();
 
     let setCustomer = db.collection('customers-data').doc(data.customerID);
@@ -41,10 +41,11 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     
     let changeRole = db.collection('users').doc(data.customerID);
     let changeCode = db.collection('users').doc(data.customerID);
-
+    
+  
     batch.set(changeCode, { "code": data.code }, { "merge": true });
     batch.set(changeRole, { "role": "customer" }, { "merge": true });
-
+     console.log("test")
     return batch.commit().then(function () {
         return true;
     }).catch(err => {
@@ -52,9 +53,17 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     })
 })
 
+
+exports.GetCustomerNameById = functions.https.onCall(async(data, context) => {
+    let user = await utils.GetEntity('customers-data',data.customerID).then(doc=>{
+      return doc
+    })
+    // return user name
+    return user.fullName  
+})
 // get all customer of one orginization
 exports.GetAllCustomers = functions.https.onCall(async(data, context)  =>  {
-  
+    
     const customersRef = db.collection('users')
 
   const snapshot = await customersRef.where("role","==", "customer").get();

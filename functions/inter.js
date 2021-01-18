@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-
+const utils = require('./utils')
 const db = admin.firestore();
 
 exports.CreateInter = functions.https.onCall((data, context) => {
@@ -13,7 +13,7 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 
     const inter = {
         "interpreterID": data.interID,
-        "desc":data.desc,
+        "desc": data.desc,
         "avarageRating": null,
         "hoursOfWork": [],
         "cardID": data.cardID,
@@ -25,9 +25,9 @@ exports.CreateInter = functions.https.onCall((data, context) => {
         "birthDate": data.birthDate,
         "disabled": false,
         "role": "inter"
-    
+
     }
-    
+
     let batch = db.batch();
     let setInter = db.collection('inters-data').doc(data.interID);
 
@@ -48,24 +48,46 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 
 })
 
-exports.GetAllInters = functions.https.onCall(async(data, context)  =>  {
-  
+
+exports.InterBookEvent = functions.https.onCall(async (data, context) => {
+
+    const eventsRef = await db.collection('events').doc(data.eventID)
+    const doc = await eventsRef.get();
+    let docUpdated = {}
+    if (!doc.exists) {
+        console.log('No such document!');
+    } else {
+      
+        if (doc.data().occupied) {
+            return false
+        }
+        else {
+            docUpdated = doc.data()
+            docUpdated.occupied = true
+            docUpdated.interId = data.interID
+
+            const res = await eventsRef.update(docUpdated)
+            // TODO need to send email/phone-message to both  customer and inter with meeting details
+            return true
+        }
+    }
+})
+exports.GetAllInters = functions.https.onCall(async (data, context) => {
+
     const intersRef = db.collection('users')
 
-  const snapshot = await intersRef.where("role","==", "inter").get();
-  if (snapshot.empty) {
-    console.log('No matching documents.');
-    return;
-  }  
-  
-  snapshot.forEach(doc => {
-    console.log(doc.id, '=>', doc.data());
-  });
-  })
+    const snapshot = await intersRef.where("role", "==", "inter").get();
+    if (snapshot.empty) {
+        console.log('No matching documents.');
+        return;
+    }
 
-exports.BookEvent = functions.https.onCall(async(data, context)  =>  {
- 
-  })
+    snapshot.forEach(doc => {
+        console.log(doc.id, '=>', doc.data());
+    });
+})
+
+
 exports.SendInterToServer = functions.https.onCall((data, context) => {
     if (!context.auth) {
         // Throwing an HttpsError so that the client gets the error details.
@@ -127,6 +149,12 @@ exports.interAnswer = functions.https.onCall((data, context) => {
     } else {
         return "you have called interAnswer : REQUESTID IS MISSING"
     }
+})
 
-
+exports.GetInterNameById = functions.https.onCall(async (data, context) => {
+    let user = await utils.GetEntity('inters-data', data.interID).then(doc => {
+        return doc
+    })
+    // .catch(err=>console.log(err))
+    return user.fullName
 })

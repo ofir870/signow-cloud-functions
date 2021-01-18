@@ -14,14 +14,6 @@ exports.UpdateLastLogin = functions.https.onCall((data, context) => {
     return db.collection('users').doc(context.auth.uid).update(newLastLogin);
 
 })
-exports.GetUserNameById = functions.https.onCall((data, context) => {
-      let user = utils.GetEntity('users',data.id).then(doc=>{
-        console.log(doc)
-        return doc
-      })
-      // return user name
-      return user.fullName  
-})
 
 exports.CheckUserRole = functions.https.onCall((data, context) => {
 

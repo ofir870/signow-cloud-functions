@@ -5,7 +5,7 @@ const db = admin.firestore();
 
 exports.CreateEvent = functions.https.onCall(async (data, context) => {
   // validate data
-  // go to customer doc with customer id from the data parameter and check is orginization 
+  // go to customer doc with customer id from the data parameter and 
   // check if orginization as credit to active the event 
   const event = data;
 
@@ -14,17 +14,32 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   const customerData = await utils.GetEntity("users", data.customerId);
 
   // get orginization credit for validation
+
   let credit = await utils.GetOrginizationCreditByCode(customerData.code);
 
-// long meeting 
+// long meeting check and decrease credit
   if (data.length == 60) {
-
     if (credit >= 1) {
       await utils.DecreaseOrginizationCreditByHour(customerData.code, credit);
+    } else{
 
+      return false
+    }
+  }
+// short meeting check and decrease credit
+if (data.length == 30) {
+
+  if (credit >= 0.5) {
+    await utils.DecreaseOrginizationCreditByHalfHour(customerData.code, credit);
+
+  }else{
+
+    return false
+  }
+}
       let batch = db.batch();
 
-      let setEvent = db.collection('events').doc();
+      let setEvent = db.collection('events').doc(data.id);
 
       batch.set(setEvent, JSON.parse(JSON.stringify(event)));
 
@@ -33,32 +48,6 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
       }).catch(err => {
         return err
       })
-    }
-    
-    return false
-
-  }
-// short meeting 
-  if (data.length == 30) {
-
-    if (credit >= 0.5) {
-      await utils.DecreaseOrginizationCreditByHalfHour(customerData.code, credit);
-
-      let batch = db.batch();
-
-      let setEvent = db.collection('events').doc();
-
-      batch.set(setEvent, JSON.parse(JSON.stringify(event)));
-
-      return batch.commit().then(function () {
-        return true;
-      }).catch(err => {
-        return err
-      })
-    }
-    return false
-
-  }
 
 
 })

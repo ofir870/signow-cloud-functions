@@ -1,95 +1,102 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
-
+const utils = require("./utils")
 // all functions are triggers  
 // create, delete , create role
 // ON CREATE
 // triggerd when user registerd and make a new user in fire-store-DB 
 
-exports.OnUserSignUp = functions.auth.user().onCreate((user) => {
+exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
+    let data = {}
+    // get userById
+    const userDoc = await utils.GetEntity("users", user.uid).then(doc => {
 
-    // check if email is taken 
-    // yes => check if the disabled is
-    // no  => send err massage 
-    // yes => update the doc with the user data.
-    // no: go on update the doc with the user data.
+        return doc
+    })
+    // check if doc extist 
+    console.log(userDoc == false)
+    if (userDoc == false) {
+        
+        console.log("data with code and role ")
+        data = {
+            "phone": '',
+            "address": '',
+            'identityNumber': '',
+            'password': '',
+            "fullName": '',
+            "birth-date": '',
+            "disabled": false,
+            "code": "",
+            "role": "",
+            "id": user.uid,
+            "email": user.email,
+            "timestamp": { "craetion": new Date().getTime, "lastLogin": null, "activity": null }
 
+        }
 
-    const data = {
-        "phone": '',
-        "address": '',
-        'identityNumber': '',
-        'password': '',
-        "fullName": '',
-        "birth-date": '',
-        "disabled": false,
-        "role": '',
-        "code":'',
-        "id": user.uid,
-        "email": user.email,
-        "timestamp":{"craetion":new Date().getTime, "lastLogin":null,"activity":null}
     }
-    
+    else {
+        // yes change data obj to be without role and code
+        console.log("data without code and role ")
+        data = {
+            "phone": '',
+            "address": '',
+            'identityNumber': '',
+            'password': '',
+            "fullName": '',
+            "birth-date": '',
+            "disabled": false,
+            "code": userDoc.code,
+            "role": userDoc.role,
+            "id": user.uid,
+            "email": user.email,
+            "timestamp": { "craetion": new Date().getTime, "lastLogin": null, "activity": null }
+
+        }
+    }
+
+
+
     return db.collection('users').doc(user.uid).set(JSON.parse(JSON.stringify(data)));
 });
+exports.OnDelete = functions.auth.user().onDelete(async (user) => {
 
-// // onCreate customer will change is user role to customer
-// exports.ChangeRoleCustomer = functions.firestore.document('customer-data/{userId}').onCreate((snap, context) => {
-//     return (
-//         db
-//             .collection('users')
-//             .doc(snap.data().customerID)
-//             .update({ role: "customer" })
-//     )
-// })
-// // onCreate inter will change is user role to inter
-// exports.ChangeRoleInter = functions.firestore.document('inters-data/{userId}').onCreate((snap, context) => {
+    let snapshot = await db.collection('users').doc(user.uid)
 
-//     return (
-//         db
-//             .collection('users')
-//             .doc(snap.data().interID)
-//             .update({ role: "inter" })
-//     )
-// })
+    const doc = await snapshot.get();
+    if (!doc.exists) {
+        console.log('No such document!');
+    } else {
+        role = doc.data().role;
 
-exports.OnDelete = functions.auth.user().onDelete(async(user) => {
-    const data = {
-        "email": user.email,
-        "disabled": true,
-        "id": user.uid
-    }    
+        let batch = db.batch();
 
-   let snapshot = await db.collection('users').doc(user.id)
-    role = snapshot.data().role;
-    let batch = db.batch();
+        console.log("role:" + role)
+        if (role == "customer") {
+            let deleteCustomer = db.collection('customers-data').doc(user.uid)
 
-    if(role === "customer"){
-        let deleteCustomer = db.collection('customers-data').doc(user.uid)
-    
-        batch.delete(deleteCustomer);
+            batch.delete(deleteCustomer);
+            console.log("customer-data deleted")
+        }
+        if (role == "inter") {
+            let deleteInter = db.collection('inters-data').doc(user.uid)
+
+            batch.delete(deleteInter);
+            console.log("inter-data deleted")
+        }
+
+        let setUser = db.collection('users').doc(user.uid);
+
+        batch.delete(setUser);
+        console.log("user Deleted")
+
+        return batch.commit().then(function () {
+            return true;
+        }).catch(err => {
+            return err
+        })
     }
-    if(role === "inter"){
-        let deleteInter = db.collection('inters-data').doc(user.uid)
-    
-        batch.delete(deleteInter);
-    }
-
-    // if(role === "orginization"){
-    //     let deleteInter = db.collection('inters-data').doc(user.uid)
-    
-    //     batch.delete(deleteInter);
-    // }
-    let setUser = db.collection('users').doc(user.uid);
-
-    batch.set(setUser, JSON.parse(JSON.stringify(data)));
-
-    return batch.commit().then(function () {
-        return true;
-    }).catch(err => {
-        return err
-    })
 });
 
 //     if(user.role === "customer"){

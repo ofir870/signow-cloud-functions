@@ -1,5 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const utils = require('./utils');
 
 const db = admin.firestore();
 
@@ -33,7 +34,7 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
         return "Missing: pricing"
     }
     const orginization = {
-        "full-name": data.fullName,
+        "fullName": data.fullName,
         "email": data.email,
         "code": data.code,
         "phone": data.phone,
@@ -59,8 +60,6 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     })
 })
 
-// get all customer of one orginization by code in customers-data
-// send code in data => get all customer-data by code => get all users by customerID   
 exports.GetAllOrginizationCustomers = functions.https.onCall(async (data, context) => {
     let arr = [];
     const customersRef = db.collection('users')
@@ -102,4 +101,22 @@ exports.GetAllOrginizations = functions.https.onCall(async (data, context) => {
 
 })
 
+exports.GetOrginizationNameByCode = functions.https.onCall(async (data, context) => {
 
+   const orgRef = db.collection("orginization");
+  const snapshot = await orgRef.where("code", "==", data.code).get();
+  let name;
+
+  if (snapshot.empty) {
+    console.log("the code in not valid");
+    return false
+  } else {
+    
+    snapshot.forEach(doc => {
+      name = doc.data().fullName
+    });
+
+    return name
+  }
+
+})

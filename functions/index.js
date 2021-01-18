@@ -1,10 +1,8 @@
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const { backup, backups, initializeApp ,restore } = require('firestore-export-import')
+const { backup, backups, initializeApp, restore } = require('firestore-export-import')
 admin.initializeApp();
-
-
 
 
 
@@ -13,18 +11,20 @@ exports.CreateCustomer = customer.CreateCustomer
 exports.CreateCustomerRating = customer.CreateCustomerRating
 exports.GetAllCustomers = customer.GetAllCustomers
 exports.EmailValidation = customer.EmailValidation
+exports.GetCustomerNameById = customer.GetCustomerNameById
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
 
 const inter = require('./inter')
 exports.CreateInter = inter.CreateInter
 exports.GetAllInters = inter.GetAllInters
-exports.BookEvent = inter.BookEvent
+exports.GetInterNameById = inter.GetInterNameById
+exports.InterBookEvent = inter.InterBookEvent
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
-exports.UpdateEvent = events.UpdateEvent 
+exports.UpdateEvent = events.UpdateEvent
 exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
 exports.GetAllEvents = events.GetAllEvents
 exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
@@ -38,6 +38,7 @@ exports.GetAllOrginizationCustomers = orginization.GetAllOrginizationCustomers
 exports.GetAllOrginizations = orginization.GetAllOrginizations
 exports.UpdateOrginization = orginization.UpdateOrginization
 exports.GetOrginizations = orginization.GetOrginizations
+exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
 
 const triggers = require('./triggers')
 exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
@@ -48,14 +49,14 @@ exports.OnUserSignUp = triggers.OnUserSignUp
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
-exports.GetUserNameById = userActions.GetUserNameById
+
+const messages = require('./messages')
+exports.SendEmail = messages.SendEmail
 
 const utils = require('./utils')
-// exports.ExcelToJSON = utils.ExcelToJSON
-exports.GetUsersFromJson = utils.GetUsersFromJson
-exports.ImportToJSON = utils.ImportToJSON
-exports.SendWhatsApp = utils.SendWhatsApp
 exports.CodeValidation = utils.CodeValidation
+exports.SendWhatsApp = utils.SendWhatsApp
+
 
 /* VideoChat Serving app */
 //import dependencies
