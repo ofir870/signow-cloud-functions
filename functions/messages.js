@@ -32,12 +32,56 @@ exports.SendEmail = functions.https.onCall((data, context) => {
   })
   return "go"
 })
+exports.SendGridEmail = (data)=>{
+  const sgMail = require('@sendgrid/mail')
+  sgMail.setApiKey('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')
+
+  const recipients = [
+    {
+      mail: data.customerMail,
+      name: data.customerName,
+      secendName: data.interName,
+      meetingTime: data.meetingTime,
+      meetingLength: data.meetingLength,
+      meetingLink: data.meetingLink
+    },
+    {
+      mail: data.interMail,
+      name: data.interName,
+      secendName: data.customerName,
+      meetingTime: data.meetingTime,
+      meetingLength: data.meetingLength,
+      meetingLink: data.meetingLink
+    }
+  ]
+
+  recipients.forEach(element=>{
+    console.log(element)
+    const msg = {
+      to: element.mail, // Change to your recipient
+      from: 'ofir@signow.org', // Change to your verified sender
+      subject: 'שלום, נקבעה לך שיחה חדשה במערכת signow',
+      text:  `שלום ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
+      בתאריך  :  ${data.meetingTime}
+      לאורך של : ${data.meetingLength} דקות
+      
+      הלינק הפגישה הוא :   ${data.meetingLink}
+      ` 
+    }
+    
+    sgMail.send(msg)
+    .then(() => {
+      console.log('Email sent')
+    })
+  })
+
+  }
 
 // get the event by
 // call this function when the value isOccurpied in event change 
 // if true: send message to both client and inter about the meeting
 // if false: send a message about meeting cancellation  
-exports.SendSMSOnClosedEvent = functions.https.onCall((data, context) => {
+exports.SendSMSOnClosedEvent = (data => {
 
   const recipients = [
     {
@@ -60,16 +104,17 @@ exports.SendSMSOnClosedEvent = functions.https.onCall((data, context) => {
     return console.log("the phone is missing");
 
   }
-  //     //  validate
-  //     // is number
-  //     //  min length
-  //     // max length
 
   let answer = ''
   recipients.forEach(element => {
     const obj = {
-      body: `שלום ${element.name} נקבעה לך פגישה עם המתורגמן\נית ${element.secendName} מיקום הפגישה הוא :  ${data.eventTime}
-       בתאריך ${data.eventLink} לאורך של :${data.eventLength} דקות`,
+      body: `שלום ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
+       בתאריך  :  ${data.eventTime}
+       לאורך של : ${data.eventLength} דקות
+       
+       הלינק הפגישה הוא :   ${data.eventLink}
+       
+       `,
       from: '+972523418514',
       to: `${element.phone}`
     }

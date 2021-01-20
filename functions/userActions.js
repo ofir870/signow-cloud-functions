@@ -15,10 +15,17 @@ exports.UpdateLastLogin = functions.https.onCall((data, context) => {
 
 })
 
-exports.CheckUserRole = functions.https.onCall((data, context) => {
+exports.UpdatePassword = functions.https.onCall((data,context)=>{
 
+  console.log("end")
+  return utils.UpdatePassword(data.newPassword,data.uid)
+})
+
+exports.CheckUserRole = functions.https.onCall((data, context) => {
+  
     const userRef = db.collection('users').doc(data.uid);
     let getDoc = userRef.get().then(doc =>{
+      
         if (!doc.exists) {
             console.log('No such document!');
             return 'false'

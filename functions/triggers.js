@@ -7,6 +7,18 @@ const utils = require("./utils")
 // ON CREATE
 // triggerd when user registerd and make a new user in fire-store-DB 
 
+exports.OnCreateEvent = functions.firestore.document('events/{Id}')
+    .onCreate((snap, context) => {
+   
+      const newValue = snap.data();
+
+      // access a particular field as you would any JS property
+      const inter = newValue.interID;
+      const cus = newValue.customerID;
+            console.log(inter)
+            console.log(cus)
+    });
+
 exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
     let data = {}
     // get userById

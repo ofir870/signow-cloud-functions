@@ -12,6 +12,43 @@ exports.UpdateEntity = (async (data, ref) => {
   const res = await entityRef.update(data.orginization)
 
   console.log('Update: ', res);
+
+})
+
+exports.UpdatePassword = (async (newPassword, uid) => {
+
+  console.log('start')
+
+  const userRef = db.collection('users').doc(uid);
+
+  let update = userRef.get().then(async doc => {
+
+    if (!doc.exists) {
+      console.log('No such document!');
+      return 'false'
+    } else {
+      console.log(doc.data().role)
+      if (doc.data().role == "inter") {
+        const interRef = db.collection('inters-data').doc(uid);
+        const snapshot = await interRef.update({ "password": newPassword });
+        console.log("update password inter" + newPassword)
+      }
+      
+      if (doc.data().role == "customer") {
+        const cusRef = db.collection('customers-data').doc(uid);
+        const snapshot = await cusRef.update({ "password": newPassword });
+        console.log("update password customer" + newPassword)
+      }
+
+      return newPassword
+    }
+  })
+    .catch(err => {
+      console.log('Error getting documentL uid is wrong', err);
+
+    })
+
+  return update
 })
 
 exports.GetAllEntity = (async (ref) => {
@@ -21,10 +58,10 @@ exports.GetAllEntity = (async (ref) => {
   const snapshot = await entityRef.get();
   const allEntities = []
   snapshot.forEach(doc => {
-    allEntities.push({id:doc.id,doc:doc.data()})
+    allEntities.push({ id: doc.id, doc: doc.data() })
   });
 
-return allEntities
+  return allEntities
 })
 exports.GetEntity = (async (ref, id) => {
 
@@ -92,6 +129,8 @@ exports.GetDocParam = (async (ref, id, param) => {
   }
 })
 
+
+
 exports.UpdateOrginizationCredit = (async (code, credit) => {
 
   const orgRef = db.collection("orginization");
@@ -131,46 +170,15 @@ exports.CodeValidation = functions.https.onCall(async (data, context) => {
           //       })
 
           //    });
-          
-          // get the event by
-          //call this function when the value isOccurpied in event change 
-          // if true: send message to both client and inter about the meeting
-          // if false: send a message about meeting cancellation  
-          // exports.SendWhatsApp = functions.https.onCall((data, context) => {
 
-          //     const accountSid = 'AC2a9db3c7279992b89d19f4f3e7a19933'; 
-          //   const authToken = '454ed73a5b64ce377e1c5cde6fd821cd '; 
-          //   const client = require('twilio')(accountSid, authToken); 
-          //    if(data.phone.empty){
-          //      return console.log("the phone is missing");
-          //     }
-          //     //  validate
-          //     // is number
-          //     //  min length
-          //     // max length
-               
-          //      client.messages 
-          //      .create({ 
-          //        body: 'Your appointment is coming up on July 21 at 3PM', 
-          //        from: 'whatsapp:+14155238886',       
-          //        to: `whatsapp:${data.phone}` 
-          //       }) 
-          //       .then(message => console.log(message.sid)) 
-          //       .done();
+
+          //   exports.ExcelToJSON = functions.https.onCall((data, context) => {
+          //       const xlsxFile = require('read-excel-file/node');
+
+          //       xlsxFile('../Test.xlsx').then((rows) => {
+
+
           //       })
-          // exports.ImportToJSON = functions.https.onCall((data, context) => {
-
-            // backup('users').then((dataSend) =>
-            // console.log(JSON.stringify(dataSend))
-            // )
-
-            // })
-            // })
-            // exports.ExcelToJSON = functions.https.onCall((data, context) => {
-            //     const xlsxFile = require('read-excel-file/node');
-
-            //     xlsxFile('../Test.xlsx').then((rows) => {
 
 
-            //     })
-            
+

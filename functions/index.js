@@ -5,7 +5,6 @@ const { backup, backups, initializeApp, restore } = require('firestore-export-im
 admin.initializeApp();
 
 
-
 const customer = require('./customer')
 exports.CreateCustomer = customer.CreateCustomer
 exports.CreateCustomerRating = customer.CreateCustomerRating
@@ -31,6 +30,7 @@ exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCu
 exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomerId
 exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
 exports.DeletePastEvents = events.DeletePastEvents
+exports.UpdateEventTime = events.UpdateEventTime
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
@@ -45,17 +45,21 @@ exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
 exports.ChangeRoleInter = triggers.ChangeRoleInter
 exports.OnDelete = triggers.OnDelete
 exports.OnUserSignUp = triggers.OnUserSignUp
+exports.OnCreateEvent = triggers.OnCreateEvent
 
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
+exports.GetPhoneOfUser = userActions.GetPhoneOfUser
+exports.UpdatePassword = userActions.UpdatePassword
 
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
+exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
+exports.SendGridEmail = messages.SendGridEmail
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
-exports.SendWhatsApp = utils.SendWhatsApp
 
 
 /* VideoChat Serving app */

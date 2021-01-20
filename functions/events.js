@@ -11,7 +11,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
 
   // get customer doc
   
-  const customerData = await utils.GetEntity("users", data.customerId);
+  const customerData = await utils.GetEntity("users", data.customerID);
 
   // get orginization credit for validation
 
@@ -32,7 +32,8 @@ if (data.length == 30) {
   if (credit >= 0.5) {
     await utils.DecreaseOrginizationCreditByHalfHour(customerData.code, credit);
 
-  }else{
+  }
+  else{
 
     return false
   }
@@ -75,11 +76,11 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
   return arr
 
 })
-exports.UpdateEvent = functions.https.onCall(async (data, context) => {
+exports.UpdateEventTime = functions.https.onCall(async (data, context) => {
 
-  const eventsRef = db.collection('events').doc(data.uid);
+  const eventsRef = db.collection('events').doc(data.eventID);
 
-  const res = await eventsRef.update(data.eventsRef)
+  const res = await eventsRef.update({date:data.date})
 
   console.log('Update: ', res);
 })
@@ -115,7 +116,7 @@ exports.GetAllEventsOccupiedByCustomerId = functions.https.onCall(async (data, c
     return;
   }
   snapshot.forEach(doc => {
-
+    
     let tempObj = doc.data()
     tempObj.id = doc.id
     arr.push(tempObj)
