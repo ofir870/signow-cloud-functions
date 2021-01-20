@@ -46,8 +46,12 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
     try {
     const eventsRef = await db.collection('events').doc(data.eventID)
     const doc = await eventsRef.get();
-    const docUpdated = {
 
+    // get Name
+    const interData = await utils.GetEntity("inters-data", context.auth.uid);
+
+    const docUpdated = {
+        interName :interData.fullName,
         occupied : true,
         interID : context.auth.uid,
         link : data.link
@@ -94,8 +98,9 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
                 eventLength:doc.data().length,
                 eventLink:data.link
             }
-            // console.log(gridData)
-            // messages.SendGridEmail(gridData)
+       
+            messages.SendGridEmail(gridData)
+            
             messages.SendSMSOnClosedEvent(SMSData)
             // TODO phone-message to both  customer and inter with meeting details
             return true

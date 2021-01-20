@@ -10,51 +10,59 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   const event = data;
 
   // get customer doc
-  
-  const customerData = await utils.GetEntity("users", data.customerID);
 
+  const userData = await utils.GetEntity("users", data.customerID);
+  const customerData = await utils.GetEntity("customers-data", data.customerID);
+  data.customerName = customerData.fullName
   // get orginization credit for validation
 
-  let credit = await utils.GetOrginizationCreditByCode(customerData.code);
+  let credit = await utils.GetOrginizationCreditByCode(userData.code);
 
-// long meeting check and decrease credit
+
+  // long meeting check and decrease credit
   if (data.length == 60) {
     if (credit >= 1) {
-      await utils.DecreaseOrginizationCreditByHour(customerData.code, credit);
-    } else{
+      await utils.DecreaseOrginizationCreditByHour(userData.code, credit);
+    } else {
 
       return false
     }
   }
-// short meeting check and decrease credit
-if (data.length == 30) {
+  // short meeting check and decrease credit
+  if (data.length == 30) {
 
-  if (credit >= 0.5) {
-    await utils.DecreaseOrginizationCreditByHalfHour(customerData.code, credit);
+    if (credit >= 0.5) {
+      await utils.DecreaseOrginizationCreditByHalfHour(userData.code, credit);
 
+    }
+    else {
+
+      return false
+    }
   }
-  else{
+  let batch = db.batch();
 
-    return false
-  }
-}
-      let batch = db.batch();
+  let setEvent = db.collection('events').doc(data.id);
 
-      let setEvent = db.collection('events').doc(data.id);
+  batch.set(setEvent, JSON.parse(JSON.stringify(event)));
 
-      batch.set(setEvent, JSON.parse(JSON.stringify(event)));
-
-      return batch.commit().then(function () {
-        return true;
-      }).catch(err => {
-        return err
-      })
+  return batch.commit().then(function () {
+    return true;
+  }).catch(err => {
+    return err
+  })
 
 
 })
 
 
+// exports.ValidateEventTime = functions.httpss.onCall(async (data, context) => {
+//   const event = utils.GetEntity("events",data.eventID);
+//   // 
+//  if(event.start<new Date.getTime()) {
 
+//  }
+// })
 exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events');
@@ -80,7 +88,7 @@ exports.UpdateEventTime = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').doc(data.eventID);
 
-  const res = await eventsRef.update({date:data.date})
+  const res = await eventsRef.update({ date: data.date })
 
   console.log('Update: ', res);
 })
@@ -116,7 +124,7 @@ exports.GetAllEventsOccupiedByCustomerId = functions.https.onCall(async (data, c
     return;
   }
   snapshot.forEach(doc => {
-    
+
     let tempObj = doc.data()
     tempObj.id = doc.id
     arr.push(tempObj)
