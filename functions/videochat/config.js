@@ -5,8 +5,8 @@ module.exports = {
   //   apiSecret: process.env.TWILIO_API_SECRET
   // }
   twilio: {
-    accountSid: "AC4cb7baa083cde1e09298e7a9c41314e5",
-    apiKey: "SK4be5ac9f09897027d409a176124ed89b",
-    apiSecret: "jYXGhBwzsqizS7Xa7jXSprJZlYKZzXK5"
+    accountSid: "AC2a9db3c7279992b89d19f4f3e7a19933",
+    apiKey: "SKc677104f8efb51a864336a4a79ea68af",
+    apiSecret: "V46B92svFi3RhWfDAk02tiLjUIHNsaJI"
   }
 };
