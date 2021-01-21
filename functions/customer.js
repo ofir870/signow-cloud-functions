@@ -45,7 +45,7 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
   
     batch.set(changeCode, { "code": data.code }, { "merge": true });
     batch.set(changeRole, { "role": "customer" }, { "merge": true });
-     console.log("test")
+   
     return batch.commit().then(function () {
         return true;
     }).catch(err => {

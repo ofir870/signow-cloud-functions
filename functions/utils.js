@@ -15,6 +15,7 @@ exports.UpdateEntity = (async (data, ref) => {
 
 })
 
+
 exports.UpdatePassword = (async (newPassword, uid) => {
 
   console.log('start')
@@ -33,7 +34,7 @@ exports.UpdatePassword = (async (newPassword, uid) => {
         const snapshot = await interRef.update({ "password": newPassword });
         console.log("update password inter" + newPassword)
       }
-      
+
       if (doc.data().role == "customer") {
         const cusRef = db.collection('customers-data').doc(uid);
         const snapshot = await cusRef.update({ "password": newPassword });

@@ -31,6 +31,7 @@ exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomer
 exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
 exports.DeletePastEvents = events.DeletePastEvents
 exports.UpdateEventTime = events.UpdateEventTime
+exports.GetEventById = events.GetEventById
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
@@ -57,9 +58,11 @@ const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
 exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
 exports.SendGridEmail = messages.SendGridEmail
+// exports.ScheduledEmailOnDate = messages.ScheduledEmailOnDate
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
+exports.ValidateHour = utils.ValidateHour
 
 
 /* VideoChat Serving app */
@@ -112,5 +115,7 @@ app.get('/ping', function (req, res) {
 // app.listen(process.env.PORT || 8080, () =>
 //   console.log('Express server is running on localhost:8080')
 // );
+
+
 
 exports.app = functions.https.onRequest(app);

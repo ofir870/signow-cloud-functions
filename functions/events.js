@@ -8,9 +8,10 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   // go to customer doc with customer id from the data parameter and 
   // check if orginization as credit to active the event 
   const event = data;
-
+  // var start =  8 * 60 + 0;
+  // var end   = 17 * 60 + 0;
   // get customer doc
-
+  // if(event.start>)
   const userData = await utils.GetEntity("users", data.customerID);
   const customerData = await utils.GetEntity("customers-data", data.customerID);
   data.customerName = customerData.fullName
@@ -51,8 +52,6 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   }).catch(err => {
     return err
   })
-
-
 })
 
 
@@ -172,6 +171,13 @@ exports.GetAllOccupiedEventsByInterId = functions.https.onCall(async (data, cont
   return arr
 })
 
+
+exports.GetEventById = functions.https.onCall((data,context)=>{
+
+  return utils.GetEntity("events",data.eventID)
+}) 
+
+ 
 exports.GetAllEvents = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events');
