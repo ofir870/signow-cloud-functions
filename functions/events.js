@@ -18,8 +18,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   // get orginization credit for validation
 
   let credit = await utils.GetOrginizationCreditByCode(userData.code);
-
-
+  event.code = userData.code
   // long meeting check and decrease credit
   if (data.length == 60) {
     if (credit >= 1) {
@@ -83,6 +82,36 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
   return arr
 
 })
+
+exports.DeleteEvent = functions.https.onCall(async (data, context) => {
+
+  const eventsRef = db.collection('events').doc(data.eventID);
+  
+  const doc = await eventsRef.get()
+
+  if (!doc.exists) {
+
+    console.log('No such document!');
+
+  } else {
+    console.log('Document data:', doc.data());
+    
+    let credit = await utils.GetOrginizationCreditByCode(doc.data().code);
+    // long meeting check and decrease credit
+    if (doc.data().length == 60) {
+      await utils.RaiseOrginizationCreditByHour(doc.data().code, credit);
+    }
+    // short meeting check and decrease credit
+    if (doc.data().length == 30) {
+      await utils.RaiseOrginizationCreditByHalfHour(doc.data().code, credit);
+    }
+
+    // delete 
+    const res = await db.collection('events').doc(data.eventID).delete();
+    console.log("just deleted an event")
+  }
+    
+  })
 exports.UpdateEventTime = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').doc(data.eventID);
@@ -172,12 +201,12 @@ exports.GetAllOccupiedEventsByInterId = functions.https.onCall(async (data, cont
 })
 
 
-exports.GetEventById = functions.https.onCall((data,context)=>{
+exports.GetEventById = functions.https.onCall((data, context) => {
 
-  return utils.GetEntity("events",data.eventID)
-}) 
+  return utils.GetEntity("events", data.eventID)
+})
 
- 
+
 exports.GetAllEvents = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events');

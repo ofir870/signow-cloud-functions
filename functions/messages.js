@@ -3,16 +3,37 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 const nodemailer = require("nodemailer");
 const config = require("./config")
+const utils = require('./utils')
 
 
+exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
+  // exports.ScheduledEmail = functions.pubsub.schedule('every 30 minutes').onRun((context) => {
+  // ------>> check if there is event to send a reminder to customer on phone
+  // get all event that are in the next 30 minutes 
 
-// exports.ScheduledEmail = functions.pubsub.schedule('every 30 minutes').onRun((context) => {
-//   // check if there is event to send a reminder to customer on phone
-//   // get all event that are in the next 30 minutes 
-//   // if there is events send to all customers reminder
-//   console.log('This will be run every 5 minutes!');
-//   console.log(context)
-// });
+
+  const entityRef = db.collection('events');
+
+  const allEntities = []
+  const HOUR = 1000 * 60 * 60;
+  let now = new Date().getTime()
+  let nowPlusHour = new Date().getTime() + HOUR
+  let count = 0 
+  const snapshot = await entityRef.where("start", ">", now).where( "start", "<", nowPlusHour).get();
+
+  snapshot.forEach(doc => {
+    count++
+
+    console.log(count)
+    console.log(doc.data().start > now)
+    console.log(doc.data().start < nowPlusHour)
+    console.log(doc.data().start)
+    allEntities.push({ id: doc.id, doc: doc.data() })
+    // TODO if get here send a message by customer id
+  })
+  return allEntities
+})
+
 exports.SendGridEmail = (data) => {
 
   const sgMail = require('@sendgrid/mail')

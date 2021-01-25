@@ -75,6 +75,18 @@ exports.GetEntity = (async (ref, id) => {
     return doc.data()
   }
 })
+exports.GetEntityValue = functions.https.onCall(async (data, context) => {
+
+  const cityRef = db.collection(data.ref).doc(data.id);
+  const doc = await cityRef.get();
+  if (!doc.exists) {
+    console.log('No such document!' + "GetEntity");
+    return false
+  } else {
+
+    return doc.data()[data.value]
+  }
+})
 
 exports.GetOrginizationCreditByCode = (async (code) => {
 
@@ -111,6 +123,26 @@ exports.DecreaseOrginizationCreditByHalfHour = (async (code, credit) => {
 exports.DecreaseOrginizationCreditByHour = (async (code, credit) => {
 
   let calc = credit - 1
+  const orgRef = await db.collection("orginization").where("code", "==", code).get()
+
+  for (const doc of orgRef.docs) {
+    await doc.ref.update({ credit: calc });
+  }
+})
+exports.RaiseOrginizationCreditByHalfHour = (async (code, credit) => {
+
+  let calc = credit - 0.5
+  const orgRef = await db.collection("orginization").where("code", "==", code).get()
+
+  for (const doc of orgRef.docs) {
+    await doc.ref.update({ credit: calc });
+  }
+
+})
+
+exports.RaiseOrginizationCreditByHour = (async (code, credit) => {
+
+  let calc = credit + 1
   const orgRef = await db.collection("orginization").where("code", "==", code).get()
 
   for (const doc of orgRef.docs) {

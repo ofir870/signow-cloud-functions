@@ -24,6 +24,7 @@ exports.InterBookEvent = inter.InterBookEvent
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
 exports.UpdateEvent = events.UpdateEvent
+exports.DeleteEvent = events.DeleteEvent
 exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
 exports.GetAllEvents = events.GetAllEvents
 exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
@@ -46,7 +47,7 @@ exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
 exports.ChangeRoleInter = triggers.ChangeRoleInter
 exports.OnDelete = triggers.OnDelete
 exports.OnUserSignUp = triggers.OnUserSignUp
-exports.OnCreateEvent = triggers.OnCreateEvent
+// exports.OnCreateEvent = triggers.OnCreateEvent
 
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
@@ -58,11 +59,12 @@ const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
 exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
 exports.SendGridEmail = messages.SendGridEmail
-// exports.ScheduledEmailOnDate = messages.ScheduledEmailOnDate
+exports.ScheduledEmail = messages.ScheduledEmail
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
-exports.ValidateHour = utils.ValidateHour
+exports.GetEntityValue = utils.GetEntityValue
+
 
 
 /* VideoChat Serving app */

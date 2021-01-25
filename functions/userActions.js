@@ -40,7 +40,7 @@ exports.UpdatePassword = functions.https.onCall((data,context)=>{
 })
 
 exports.CheckUserRole = functions.https.onCall((data, context) => {
-  
+    console.log(data.uid)
     const userRef = db.collection('users').doc(data.uid);
     let getDoc = userRef.get().then(doc =>{
       

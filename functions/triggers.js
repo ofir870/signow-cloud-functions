@@ -7,17 +7,7 @@ const utils = require("./utils")
 // ON CREATE
 // triggerd when user registerd and make a new user in fire-store-DB 
 
-exports.OnCreateEvent = functions.firestore.document('events/{Id}')
-    .onCreate((snap, context) => {
-   
-      const newValue = snap.data();
 
-      // access a particular field as you would any JS property
-      const inter = newValue.interID;
-      const cus = newValue.customerID;
-            console.log(inter)
-            console.log(cus)
-    });
 
 exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
     let data = {}
@@ -29,7 +19,7 @@ exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
     // check if doc extist 
     console.log(userDoc == false)
     if (userDoc == false) {
-        
+
         console.log("data with code and role ")
         data = {
             "phone": '',
@@ -111,18 +101,32 @@ exports.OnDelete = functions.auth.user().onDelete(async (user) => {
     }
 });
 
+// exports.OnCreateEvent = functions.firestore.document('events/{Id}')
+//     .onCreate((snap, context) => {
+
+//       const newValue = snap.data();
+
+//       // access a particular field as you would any JS property
+//       const inter = newValue.interID;
+//       const cus = newValue.customerID;
+//             console.log(inter)
+//             console.log(cus)
+//     });
+
+
+
 //     if(user.role === "customer"){
 
-//     }
-//     return db
-//         .collection('users')
-//         .doc(user.uid)  
-//         .set(JSON.parse(JSON.stringify(data)));
+    //     }
+    //     return db
+    //         .collection('users')
+    //         .doc(user.uid)  
+    //         .set(JSON.parse(JSON.stringify(data)));
 
-// change to onCall when customer-users(uid) row deleted 
-// exports.DeleteCustomer = functions.firestore.document('users/{userId}').onDelete((customer)=>{
-    // return db
-    //         .collection('customers-users')
-    //         .doc(customer.uid)
-    //         .delete();
-// })
+    // change to onCall when customer-users(uid) row deleted 
+    // exports.DeleteCustomer = functions.firestore.document('users/{userId}').onDelete((customer)=>{
+        // return db
+        //         .collection('customers-users')
+        //         .doc(customer.uid)
+        //         .delete();
+        // })

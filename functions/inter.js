@@ -64,31 +64,29 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
             return false
         }
         else {
-           
-            console.log(docUpdated)
-            // TODO need to send email 
+            // TODO need to  check  user comunication method if its email or phone only then send a message to this method
             // get the link
             // save it in docUpdated.link
-
+            
             const res = await eventsRef.update(docUpdated)
             const getInter = await utils.GetEntity('inters-data',context.auth.uid)
             const getUserInter = await utils.GetEntity('users',context.auth.uid)
             const getCus = await utils.GetEntity('customers-data',doc.data().customerID)
             const getUserCus= await utils.GetEntity('users',doc.data().customerID)
-     
+            
             // get inter mail by id
             // getCustomer mail by id
             const gridData = { 
-             interMail:getUserInter.email,
-             customerMail:getUserCus.email,
-             interName:getInter.fullName,
-             customerName:getCus.fullName,
-             meetingTime:doc.data().date,
-             meetingLength:doc.data().length,
-             meetingLink:data.link,
-
+                interMail:getUserInter.email,
+                customerMail:getUserCus.email,
+                interName:getInter.fullName,
+                customerName:getCus.fullName,
+                meetingTime:doc.data().date,
+                meetingLength:doc.data().length,
+                meetingLink:data.link,
+                
             }
-
+            
             const SMSData = {
                 interName:getInter.fullName,
                 customerName:getCus.fullName,
@@ -98,10 +96,18 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
                 eventLength:doc.data().length,
                 eventLink:data.link
             }
-       
+            
+            if(interData.phone){
+
+                messages.SendSMSOnClosedEvent(SMSData)
+            }
+            if(interData.email){
+
+                messages.SendSMSOnClosedEvent(SMSData)
+            }
+
             messages.SendGridEmail(gridData)
             
-            messages.SendSMSOnClosedEvent(SMSData)
             // TODO phone-message to both  customer and inter with meeting details
             return true
         }
