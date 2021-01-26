@@ -33,6 +33,7 @@ exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
 exports.DeletePastEvents = events.DeletePastEvents
 exports.UpdateEventTime = events.UpdateEventTime
 exports.GetEventById = events.GetEventById
+exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization

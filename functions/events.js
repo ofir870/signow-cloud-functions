@@ -86,7 +86,7 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
 exports.DeleteEvent = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').doc(data.eventID);
-  
+
   const doc = await eventsRef.get()
 
   if (!doc.exists) {
@@ -94,8 +94,7 @@ exports.DeleteEvent = functions.https.onCall(async (data, context) => {
     console.log('No such document!');
 
   } else {
-    console.log('Document data:', doc.data());
-    
+
     let credit = await utils.GetOrginizationCreditByCode(doc.data().code);
     // long meeting check and decrease credit
     if (doc.data().length == 60) {
@@ -110,8 +109,8 @@ exports.DeleteEvent = functions.https.onCall(async (data, context) => {
     const res = await db.collection('events').doc(data.eventID).delete();
     console.log("just deleted an event")
   }
-    
-  })
+
+})
 exports.UpdateEventTime = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').doc(data.eventID);
@@ -133,14 +132,40 @@ exports.GetAllOccupiedEvents = functions.https.onCall(async (data, context) => {
     return;
   }
   snapshot.forEach(doc => {
-
+    if(doc.data().start>date){
     let tempObj = doc.data()
     tempObj.id = doc.id
     arr.push(tempObj)
-
+    }
   })
   return arr
 })
+
+exports.GetAllNotOccupiedEvents = functions.https.onCall(async (data, context) => {
+
+  const eventsRef = await db.collection('events')
+  let date = new Date()
+  date.getTime()
+
+  const snapshot = await eventsRef.where("occupied", "==", false).get();
+  let arr = []
+  if (snapshot.empty) {
+    console.log('No matching documents.');
+    return; 
+  }
+  
+  snapshot.forEach(doc => {
+    if(doc.data().start>date){
+
+      let tempObj = doc.data()
+      tempObj.id = doc.id
+      arr.push(tempObj)
+    }
+      
+  })
+  return arr
+})
+
 exports.GetAllEventsOccupiedByCustomerId = functions.https.onCall(async (data, context) => {
 
   const eventsRef = await db.collection('events')
