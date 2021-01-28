@@ -130,3 +130,26 @@ exports.OnDelete = functions.auth.user().onDelete(async (user) => {
         //         .doc(customer.uid)
         //         .delete();
         // })
+
+
+        exports.onUpdateEvent = functions.database.ref('/events/{eventID}')
+.onUpdate((change) => {
+
+
+    const observer = db.collection('cities').where('state', '==', 'CA')
+  .onSnapshot(querySnapshot => {
+    querySnapshot.docChanges().forEach(change => {
+      if (change.type === 'added') {
+        console.log('New city: ', change.doc.data());
+      }
+      if (change.type === 'modified') {
+        console.log('Modified city: ', change.doc.data());
+      }
+      if (change.type === 'removed') {
+        console.log('Removed city: ', change.doc.data());
+      }
+    });
+  });
+    const after = change.after  // DataSnapshot after the change
+    return after
+})

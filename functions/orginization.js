@@ -103,20 +103,28 @@ exports.GetAllOrginizations = functions.https.onCall(async (data, context) => {
 
 exports.GetOrginizationNameByCode = functions.https.onCall(async (data, context) => {
 
-   const orgRef = db.collection("orginization");
-  const snapshot = await orgRef.where("code", "==", data.code).get();
-  let name;
+    const orgRef = db.collection("orginization");
+    const snapshot = await orgRef.where("code", "==", data.code).get();
+    let name;
 
-  if (snapshot.empty) {
-    console.log("the code in not valid");
-    return false
-  } else {
-    
-    snapshot.forEach(doc => {
-      name = doc.data().fullName
-    });
+    if (snapshot.empty) {
+        console.log("the code in not valid");
+        return false
+    } else {
 
-    return name
-  }
+        snapshot.forEach(doc => {
+            name = doc.data().fullName
+        });
+
+        return name
+    }
 
 })
+
+
+exports.GetOrginizationCreditByCode = functions.https.onCall(async (data, context) => {
+// מקבל קוד
+// משיג את הקרדיט מהקוד
+    return utils.GetOrginizationCreditByCode(data.code)
+})
+//

@@ -84,7 +84,9 @@ exports.GetEntityValue = functions.https.onCall(async (data, context) => {
     return false
   } else {
 
-    return doc.data()[data.value]
+    return doc.data().then(doc=>{
+      return doc[data.value]
+    })
   }
 })
 

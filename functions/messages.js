@@ -6,8 +6,8 @@ const config = require("./config")
 const utils = require('./utils')
 
 
-exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
-  // exports.ScheduledEmail = functions.pubsub.schedule('every 30 minutes').onRun((context) => {
+// exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
+  exports.ScheduledEmailMessage = functions.pubsub.schedule('every 30 minutes').onRun(async(context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 30 minutes 
 
@@ -24,12 +24,9 @@ exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
   snapshot.forEach(doc => {
     count++
 
-    console.log(count)
-    console.log(doc.data().start > now)
-    console.log(doc.data().start < nowPlusHour)
-    console.log(doc.data().start)
     allEntities.push({ id: doc.id, doc: doc.data() })
     // TODO if get here send a message by customer id
+    console.log(doc.id)
   })
   return allEntities
 })

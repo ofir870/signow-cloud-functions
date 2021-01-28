@@ -135,12 +135,11 @@ exports.CheckCustomerCredit = functions.https.onCall(async (data, context) => {
 db
     creditLeft = credit.data().hours-bank - credit.data().credit-used
 
- 
     // get all user and get a count of all credits in this month
    
 
     if (creditLeft <= 0) {
         return "you dont have more credit"
     }
-    return `you have book a meeting`
+    return `you have ${creditLeft} credit left`
 })

@@ -34,6 +34,8 @@ exports.DeletePastEvents = events.DeletePastEvents
 exports.UpdateEventTime = events.UpdateEventTime
 exports.GetEventById = events.GetEventById
 exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
+exports.GetHistoriesEventsByUserId = events.GetHistoriesEventsByUserId
+
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
@@ -42,12 +44,14 @@ exports.GetAllOrginizations = orginization.GetAllOrginizations
 exports.UpdateOrginization = orginization.UpdateOrginization
 exports.GetOrginizations = orginization.GetOrginizations
 exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
+exports.GetOrginizationCreditByCode = orginization.GetOrginizationCreditByCode
 
 const triggers = require('./triggers')
 exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
 exports.ChangeRoleInter = triggers.ChangeRoleInter
 exports.OnDelete = triggers.OnDelete
 exports.OnUserSignUp = triggers.OnUserSignUp
+exports.onUpdateEvent = triggers.onUpdateEvent
 // exports.OnCreateEvent = triggers.OnCreateEvent
 
 const userActions = require('./userActions')
@@ -55,18 +59,20 @@ exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
 exports.GetPhoneOfUser = userActions.GetPhoneOfUser
 exports.UpdatePassword = userActions.UpdatePassword
+exports.GetMailById = userActions.GetMailById
 
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
 exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
 exports.SendGridEmail = messages.SendGridEmail
-exports.ScheduledEmail = messages.ScheduledEmail
+exports.ScheduledEmailMessage = messages.ScheduledEmailMessage
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
 exports.GetEntityValue = utils.GetEntityValue
 
-
+const OnDemend = require('./onDementEvents')
+// exports.CreateOnDemendEvent = onDemend.CreateOnDemendEvent
 
 /* VideoChat Serving app */
 //import dependencies

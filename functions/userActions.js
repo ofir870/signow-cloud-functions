@@ -21,6 +21,21 @@ exports.GetAllNames = functions.https.onCall(async (data, context) => {
   return arr;
 
 })
+exports.GetNameById = functions.https.onCall(async (data, context) => {
+  // get inter data names
+  // get customers data names
+  const userRef = db.collection('users').doc(data.userID);
+  const doc = await userRef.get();
+  if(!doc.exists){
+  
+      console.log('No such document!');
+    } else {
+      return doc.data().email
+    
+  }
+  
+
+})
 // every time user will sign in we will update is sessions array with a new date
 
 exports.UpdateLastLogin = functions.https.onCall((data, context) => {
