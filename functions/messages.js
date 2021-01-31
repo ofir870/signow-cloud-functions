@@ -6,8 +6,13 @@ const config = require("./config")
 const utils = require('./utils')
 
 
+const accountSid = config.twilio.accountSid;
+const authToken = config.twilio.authToken;
+
+const client = require('twilio')(accountSid, authToken);
+
 // exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
-  exports.ScheduledEmailMessage = functions.pubsub.schedule('every 30 minutes').onRun(async(context) => {
+exports.ScheduledEmailMessage = functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 30 minutes 
 
@@ -18,15 +23,30 @@ const utils = require('./utils')
   const HOUR = 1000 * 60 * 60;
   let now = new Date().getTime()
   let nowPlusHour = new Date().getTime() + HOUR
-  let count = 0 
-  const snapshot = await entityRef.where("start", ">", now).where( "start", "<", nowPlusHour).get();
-
+  let count = 0
+  const snapshot = await entityRef.where("start", ">", now).where("start", "<", nowPlusHour).get();
+  console.log(context)
   snapshot.forEach(doc => {
+    console.log(doc.data())
+    // send a SMS message by customer id
     count++
+    client.messages
+      .create({
+        body: `
+     :הודעת תזכורת לפגישה signow
 
-    allEntities.push({ id: doc.id, doc: doc.data() })
-    // TODO if get here send a message by customer id
-    console.log(doc.id)
+     שלום  ${doc.data().customerName} נקבעה לך פגישה עם המתורגמנית  ${doc.data().interName}
+      בתאריך  :  ${doc.data().date}
+      לאורך של : ${doc.data().length} דקות.
+      
+      הלינק לפגישה הוא :   ${doc.data().link}
+      
+      `,
+        from: '+972523418514',
+        to: `${doc.data().phone}`,
+
+      })
+      .then(message => console.log(message.sid));
   })
   return allEntities
 })
@@ -56,8 +76,8 @@ exports.SendGridEmail = (data) => {
       from: 'ofir@signow.org', // Change to your verified sender
       subject: 'שלום, נקבעה לך שיחה חדשה במערכת signow',
       text: `שלום ${data.interName} נקבעה לך פגישה עם המתורגמנית  ${data.customerName}
-        בתאריך  :  ${data.meetingTime}
-        לאורך של : ${data.meetingLength} דקות
+      בתאריך  :  ${data.meetingTime}
+      לאורך של : ${data.meetingLength} דקות
         
        קישור לאפליקצייה :   'https://signplus-295808.web.app/#/'
         
@@ -94,10 +114,6 @@ exports.SendSMSOnClosedEvent = (data => {
       link: `${data.eventLink}&name=${linkInterName[0]}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6`
     }
   ]
-  const accountSid = config.twilio.accountSid;
-  const authToken = config.twilio.authToken;
-
-  const client = require('twilio')(accountSid, authToken);
 
   if (!data.interPhone && !data.customerPhone) {
 

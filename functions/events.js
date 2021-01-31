@@ -124,7 +124,7 @@ exports.DeleteEvent = functions.https.onCall(async (data, context) => {
 })
 exports.UpdateEvent = functions.https.onCall(async (data, context) => {
 
-  const eventsRef = db.collection('events').doc(data.eventID);
+  const eventsRef = db.collection('events-test').doc(data.eventID);
   const docUpdated = {}
 
   data.updatedValues.forEach(obj => {

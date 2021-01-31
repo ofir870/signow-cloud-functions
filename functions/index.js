@@ -36,7 +36,6 @@ exports.GetEventById = events.GetEventById
 exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
 exports.GetHistoriesEventsByUserId = events.GetHistoriesEventsByUserId
 
-
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
 exports.GetAllOrginizationCustomers = orginization.GetAllOrginizationCustomers
