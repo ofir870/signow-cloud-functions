@@ -3,7 +3,8 @@ const admin = require('firebase-admin');
 const db = admin.firestore();
 const nodemailer = require("nodemailer");
 const config = require("./config")
-const utils = require('./utils')
+const utils = require('./utils');
+
 
 
 const accountSid = config.twilio.accountSid;
@@ -12,10 +13,9 @@ const authToken = config.twilio.authToken;
 const client = require('twilio')(accountSid, authToken);
 
 // exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
-exports.ScheduledEmailMessage = functions.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 30 minutes 
-
 
   const entityRef = db.collection('events');
 
@@ -50,7 +50,13 @@ exports.ScheduledEmailMessage = functions.pubsub.schedule('every 60 minutes').on
   })
   return allEntities
 })
-
+exports.SendEmailVerifications  = functions.https.onCall((data,context)=>{
+  
+client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+.verifications
+.create({to: 'ofirofir870@gmail.com', channel: 'email'})
+.then(verification => console.log(verification.sid));
+})
 exports.SendGridEmail = (data) => {
 
   const sgMail = require('@sendgrid/mail')

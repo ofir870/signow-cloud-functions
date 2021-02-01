@@ -15,18 +15,17 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   // var end   = 17 * 60 + 0;
   // get customer doc
   // if(event.start>)
-  const userData = await utils.GetEntity("users", data.customerID);
-  const customerData = await utils.GetEntity("customers-data", data.customerID);
-  data.customerName = customerData.fullName
-
-  //TODO data.timestamp = FieldValue.serverTimestamp()
+  const userData = await utils.GetEntity("users", event.customerID);
+  const customerData = await utils.GetEntity("customers-data", event.customerID);
+  event.customerName = customerData.fullName
+  event.requestTime = new Date().getTime()
 
   // get orginization credit for validation
 
   let credit = await utils.GetOrginizationCreditByCode(userData.code);
   event.code = userData.code
   // long meeting check and decrease credit
-  if (data.length == 60) {
+  if (event.length == 60) {
     if (credit >= 1) {
       await utils.DecreaseOrginizationCreditByHour(userData.code, credit);
     } else {
@@ -35,7 +34,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
     }
   }
   // short meeting check and decrease credit
-  if (data.length == 30) {
+  if (event.length == 30) {
 
     if (credit >= 0.5) {
       await utils.DecreaseOrginizationCreditByHalfHour(userData.code, credit);
@@ -48,7 +47,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   }
   let batch = db.batch();
 
-  let setEvent = db.collection('events').doc(data.id);
+  let setEvent = db.collection('events').doc();
 
   batch.set(setEvent, JSON.parse(JSON.stringify(event)));
 
@@ -58,6 +57,8 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
     return err
   })
 })
+
+
 
 
 // exports.ValidateEventTime = functions.httpss.onCall(async (data, context) => {

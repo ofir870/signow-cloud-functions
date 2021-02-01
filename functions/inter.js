@@ -54,7 +54,9 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
         interName :interData.fullName,
         occupied : true,
         interID : context.auth.uid,
-        link : data.link
+        link : data.link,
+        eventBookedTime: new Date().getTime()
+
     }
     if (!doc.exists) {
         console.log('No such document!');

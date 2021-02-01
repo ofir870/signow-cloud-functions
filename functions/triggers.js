@@ -17,7 +17,7 @@ exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
         return doc
     })
     // check if doc extist 
-    console.log(userDoc == false)
+  
     if (userDoc == false) {
 
         console.log("data with code and role ")

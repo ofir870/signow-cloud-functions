@@ -1,13 +1,14 @@
 exports.onDemendEvent =  {
 
     "link": String,
-    "id": String,
+    "customerID": String,
+    "interID": String,
     "customerName": String,
     "interName": String,
-    "code": Number,
-    "occupied": Boolean,
+    "state": Boolean,
     "start": Number,
-    "length": Number,
     "date": String,
-    "status":string
+    "status":String,
+    "title":String,
+    "isAnswerd":Boolean
   }

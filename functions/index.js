@@ -21,8 +21,12 @@ exports.InterBookEvent = inter.InterBookEvent
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
+const eventsOD = require('./onDementEvents')
+exports.CreateOnDemendEvent = eventsOD.CreateOnDemendEvent
+
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
+exports.CreateEventTest = events.CreateEventTest
 exports.UpdateEvent = events.UpdateEvent
 exports.DeleteEvent = events.DeleteEvent
 exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
@@ -57,14 +61,19 @@ const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
 exports.GetPhoneOfUser = userActions.GetPhoneOfUser
-exports.UpdatePassword = userActions.UpdatePassword
+exports.UpdatePassword = userActions.UpdatePassword 
 exports.GetMailById = userActions.GetMailById
+exports.ResetPasswordLink = userActions.ResetPasswordLink
+exports.GetPasswordByEmail = userActions.GetPasswordByEmail
+exports.GetPasswordByPhone = userActions.GetPasswordByPhone
+
 
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
 exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
 exports.SendGridEmail = messages.SendGridEmail
 exports.ScheduledEmailMessage = messages.ScheduledEmailMessage
+exports.SendEmailVerifications = messages.SendEmailVerifications
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation

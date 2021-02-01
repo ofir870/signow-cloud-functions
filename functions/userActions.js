@@ -26,51 +26,65 @@ exports.GetNameById = functions.https.onCall(async (data, context) => {
   // get customers data names
   const userRef = db.collection('users').doc(data.userID);
   const doc = await userRef.get();
-  if(!doc.exists){
-  
-      console.log('No such document!');
-    } else {
-      return doc.data().email
-    
+  if (!doc.exists) {
+
+    console.log('No such document!');
+  } else {
+    return doc.data().email
+
   }
-  
+
 
 })
 // every time user will sign in we will update is sessions array with a new date
 
 exports.UpdateLastLogin = functions.https.onCall((data, context) => {
 
-    const newLastLogin = {
+  const newLastLogin = {
 
-        "lastLogin": admin.firestore.FieldValue.arrayUnion(new Date().getTime())
-    }
-    return db.collection('users').doc(context.auth.uid).update(newLastLogin);
+    "lastLogin": admin.firestore.FieldValue.arrayUnion(new Date().getTime())
+  }
+  return db.collection('users').doc(context.auth.uid).update(newLastLogin);
 
 })
 
-exports.UpdatePassword = functions.https.onCall((data,context)=>{
 
-  console.log("end")
-  return utils.UpdatePassword(data.newPassword,data.uid)
+exports.ResetPasswordLink = functions.https.onCall(async (data, context) => {
+  const resetLink = await admin.auth().generatePasswordResetLink('ofirofir870@gmail.com')
+  return resetLink
+})
+
+exports.GetPasswordByPhone = functions.https.onCall((data, context) => {
+
+  return utils.getPasswordByPhone(data.phone)
+})
+exports.GetPasswordByEmail = functions.https.onCall((data, context) => {
+
+  return utils.getPasswordByEmail(data.email)
+})
+
+exports.UpdatePassword = functions.https.onCall((data, context) => {
+
+  return utils.UpdatePassword(data.newPassword, data.uid)
 })
 
 exports.CheckUserRole = functions.https.onCall((data, context) => {
-    console.log(data.uid)
-    const userRef = db.collection('users').doc(data.uid);
-    let getDoc = userRef.get().then(doc =>{
-      
-        if (!doc.exists) {
-            console.log('No such document!');
-            return 'false'
-          } else {
-            console.log(doc.data().role)
-            return doc.data().role
-          }
-        })
-        .catch(err => {
-          console.log('Error getting documentL uid is wrong', err);
-    
+  console.log(data.uid)
+  const userRef = db.collection('users').doc(data.uid);
+  let getDoc = userRef.get().then(doc => {
+
+    if (!doc.exists) {
+      console.log('No such document!');
+      return 'false'
+    } else {
+      console.log(doc.data().role)
+      return doc.data().role
+    }
+  })
+    .catch(err => {
+      console.log('Error getting documentL uid is wrong', err);
+
     })
-    return getDoc
+  return getDoc
 })
 

@@ -15,7 +15,6 @@ exports.UpdateEntity = (async (data, ref) => {
 
 })
 
-
 exports.UpdatePassword = (async (newPassword, uid) => {
 
   console.log('start')
@@ -61,7 +60,6 @@ exports.GetAllEntity = (async (ref) => {
   snapshot.forEach(doc => {
     allEntities.push({ id: doc.id, doc: doc.data() })
   });
-
   return allEntities
 })
 exports.GetEntity = (async (ref, id) => {
@@ -84,7 +82,7 @@ exports.GetEntityValue = functions.https.onCall(async (data, context) => {
     return false
   } else {
 
-    return doc.data().then(doc=>{
+    return doc.data().then(doc => {
       return doc[data.value]
     })
   }
@@ -184,6 +182,64 @@ exports.CodeValidation = functions.https.onCall(async (data, context) => {
   return true
 
 })
+
+
+exports.ValidatePhone = (phone) => {
+
+  let areaCode = '+972 ';
+  areaCode += phone.substring(1, 4) + ' ';
+  print(areaCode);
+  areaCode += phone.substring(4, 7) + ' ';
+  print(areaCode);
+  areaCode += phone.substring(7);
+  print(areaCode);
+
+  return areaCode;
+}
+
+
+exports.getPasswordByPhone = (async (phone) => {
+
+  const customerRef = db.collection("customers-data")
+  let password = ""
+  const customerSnapshot = await customerRef.where("phone", "==", phone).get()
+  console.log(phone)
+  console.log(!customerSnapshot.empty + ": 1")
+  if (!customerSnapshot.empty) {
+
+    customerSnapshot.forEach(doc => {
+      console.log(doc.data().password)
+      password = doc.data().password
+    });
+  }
+
+  const interRef = db.collection("inters-data")
+  const interSnapshot = await interRef.where("phone", "==", phone).get()
+  console.log(!customerSnapshot.empty + ": 2")
+  if (!interSnapshot.empty) {
+    interSnapshot.forEach(doc => {
+      console.log(doc.data().password)
+      password = doc.data().password
+    });
+  }
+  return password
+})
+
+exports.getPasswordByEmail = (async (email) => {
+
+  const userRef = db.collection("users")
+  let password = ""
+  const customerSnapshot = await userRef.where("email", "==", email).get()
+
+  if (!customerSnapshot.empty) {
+    customerSnapshot.forEach(async doc => {
+      let customerData = await this.GetEntity("customers-data", doc.id)
+      password = customerData.password
+    });
+  }
+  return password
+})
+
       // exports.GetDocParam = (async(ref,id,param)  =>  {
 
       //   const cityRef = db.collection(ref).doc(id);
