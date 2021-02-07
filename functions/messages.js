@@ -46,8 +46,9 @@ exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(asy
         to: `${doc.data().phone}`,
 
       })
-      .then(message => console.log(message.sid));
-  })
+      .then(message => console.log(message.accountSid));
+  }).done();
+
   return allEntities
 })
 exports.SendEmailVerifications  = functions.https.onCall((data,context)=>{

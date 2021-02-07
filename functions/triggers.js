@@ -134,8 +134,6 @@ exports.OnDelete = functions.auth.user().onDelete(async (user) => {
 
         exports.onUpdateEvent = functions.database.ref('/events/{eventID}')
 .onUpdate((change) => {
-
-
     const observer = db.collection('cities').where('state', '==', 'CA')
   .onSnapshot(querySnapshot => {
     querySnapshot.docChanges().forEach(change => {

@@ -1,14 +1,13 @@
-exports.onDemendEvent =  {
+exports.onDemandEvent =  {
 
     "link": String,
-    "customerID": String,
     "interID": String,
     "customerName": String,
     "interName": String,
-    "state": Boolean,
+    "title": String,
     "start": Number,
-    "date": String,
     "status":String,
-    "title":String,
-    "isAnswerd":Boolean
+    "isAnswered":Boolean,
+    "requestTime":Number,
+    "id":String
   }

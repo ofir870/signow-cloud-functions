@@ -1,8 +1,8 @@
 {
   "emulators": {
     "firestore": {
-      "host": "5001",
-      "port": "5001"
+      "host": "4200",
+      "port": "4201"
     }
   },
 

@@ -123,8 +123,8 @@ exports.GetOrginizationNameByCode = functions.https.onCall(async (data, context)
 
 
 exports.GetOrginizationCreditByCode = functions.https.onCall(async (data, context) => {
-// מקבל קוד
-// משיג את הקרדיט מהקוד
+    // מקבל קוד
+    // משיג את הקרדיט מהקוד
     return utils.GetOrginizationCreditByCode(data.code)
 })
 //

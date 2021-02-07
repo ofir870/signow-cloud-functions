@@ -11,7 +11,12 @@ exports.CreateCustomerRating = customer.CreateCustomerRating
 exports.GetAllCustomers = customer.GetAllCustomers
 exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
+exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
+
+
+// var data = require('./path/to/testData.json');
+// myFunction(data);
 
 const inter = require('./inter')
 exports.CreateInter = inter.CreateInter
@@ -21,23 +26,23 @@ exports.InterBookEvent = inter.InterBookEvent
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
-const eventsOD = require('./onDementEvents')
-exports.CreateOnDemendEvent = eventsOD.CreateOnDemendEvent
+const eventsOD = require('./onDemantEvents')
+exports.CreateOnDemandEvent = eventsOD.CreateOnDemandEvent
 
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
 exports.CreateEventTest = events.CreateEventTest
 exports.UpdateEvent = events.UpdateEvent
-exports.DeleteEvent = events.DeleteEvent
+exports.DeleteEventById = events.DeleteEventById
 exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
 exports.GetAllEvents = events.GetAllEvents
 exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
 exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomerId
+exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
 exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
 exports.DeletePastEvents = events.DeletePastEvents
 exports.UpdateEventTime = events.UpdateEventTime
 exports.GetEventById = events.GetEventById
-exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
 exports.GetHistoriesEventsByUserId = events.GetHistoriesEventsByUserId
 
 const orginization = require('./orginization')
@@ -61,11 +66,13 @@ const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
 exports.GetPhoneOfUser = userActions.GetPhoneOfUser
-exports.UpdatePassword = userActions.UpdatePassword 
+exports.UpdatePassword = userActions.UpdatePassword
 exports.GetMailById = userActions.GetMailById
 exports.ResetPasswordLink = userActions.ResetPasswordLink
 exports.GetPasswordByEmail = userActions.GetPasswordByEmail
 exports.GetPasswordByPhone = userActions.GetPasswordByPhone
+exports.GetAuthenticatedUser = userActions.GetAuthenticatedUser
+
 
 
 const messages = require('./messages')
@@ -79,8 +86,11 @@ const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
 exports.GetEntityValue = utils.GetEntityValue
 
-const OnDemend = require('./onDementEvents')
-// exports.CreateOnDemendEvent = onDemend.CreateOnDemendEvent
+const onDemand = require('./onDemantEvents')
+exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
+exports.InterBookEventOnDemand = onDemand.InterBookEventOnDemand
+exports.IsInterOnDemand = onDemand.IsInterOnDemand
+exports.GetAllEventsOnDemand = onDemand.GetAllEventsOnDemand
 
 /* VideoChat Serving app */
 //import dependencies
@@ -111,21 +121,21 @@ app.use(express.static(path.join(__dirname, 'videochat/client/build')))
 
 //serving the build index.html opun GET request for <server-url>/videochat
 app.get('/videochat', (req, res) => {
-    console.log("handle GET api at /videochat");
-    console.log("sending file at " + path.join(__dirname, 'videochat/build', 'index.html'));
-    res.sendFile(path.join(__dirname, 'videochat/client/build', 'index.html'))
-  })
+  console.log("handle GET api at /videochat");
+  console.log("sending file at " + path.join(__dirname, 'videochat/build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'videochat/client/build', 'index.html'))
+})
 
 //testing api
 app.get('/ping', function (req, res) {
-    console.log("ping api at /ping");
-    return res.send('pong');
-   });
+  console.log("ping api at /ping");
+  return res.send('pong');
+});
 
-   app.get('/', function (req, res) {
-       console.log("helloworld api at /");
-    return res.send('helloworld');
-   });
+app.get('/', function (req, res) {
+  console.log("helloworld api at /");
+  return res.send('helloworld');
+});
 
 
 // define the serving port to be the VM env port or 8080 on local machine

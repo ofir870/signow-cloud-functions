@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const utils = require('./utils')
+const utils = require('./utils');
+const { auth } = require('firebase-admin');
 const db = admin.firestore();
 
 
@@ -19,8 +20,24 @@ exports.GetAllNames = functions.https.onCall(async (data, context) => {
 
   });
   return arr;
+})
+
+exports.GetAuthenticatedUser = functions.https.onCall((data, context) => {
+  if (!context.auth) {
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+      'while authenticated.');
+  } else {
+    let doc = {
+      "userName": context.auth.userName,
+      "userID": context.auth.uid,
+      "email": context.auth.email
+    }
+    return doc
+  }
 
 })
+
 exports.GetNameById = functions.https.onCall(async (data, context) => {
   // get inter data names
   // get customers data names

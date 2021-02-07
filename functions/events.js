@@ -47,7 +47,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   }
   let batch = db.batch();
 
-  let setEvent = db.collection('events').doc();
+  let setEvent = db.collection('events').doc(data.id);
 
   batch.set(setEvent, JSON.parse(JSON.stringify(event)));
 
@@ -95,7 +95,7 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
 
 })
 
-exports.DeleteEvent = functions.https.onCall(async (data, context) => {
+exports.DeleteEventById = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').doc(data.eventID);
 
