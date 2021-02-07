@@ -30,6 +30,8 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
 
     }
 
+    // change phone to +972 and take of the 0 in the start 
+    customer.phone = "+972" + parseInt(customer.phone)
     // validate code
 
     let batch = db.batch();
@@ -56,9 +58,10 @@ exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
 
     // create user with phone number
     // 
+    let phone = "+972" + parseInt(data.phone)
     // 
     admin.auth().createUser({
-        phoneNumber: data.phone,
+        phoneNumber: phone,
         password: data.password,
         displayName: data.fullName,
         disabled: false,
@@ -74,7 +77,7 @@ exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
             const customer = {
 
                 "customerID": userRecord.uid,
-                "phone": data.phone,
+                "phone": phone,
                 'password': data.password,
                 "fullName": data.fullName,
                 "idnetityNumber": data.identityNumber,
@@ -83,7 +86,7 @@ exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
                 "role": 'customerOnDemand',
                 "code": data.code
             }
-
+        
             // validate code
 
             let batch = db.batch();
