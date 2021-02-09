@@ -20,10 +20,8 @@ exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
   cardToDb.isAnswered = false
   cardToDb.interID = ""
   cardToDb.status = 'pending'
-  cardToDb.id = data.id
 
   cardToDb.requestTime = new Date().getTime()
-
 
   return db.collection('on-demand-events').doc().set(JSON.parse(JSON.stringify(cardToDb)));
 
@@ -31,27 +29,34 @@ exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
 
 
 exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) => {
+  let docUpdated = {}
+  const eventRef = db.collection('on-demand-events')
+  const snapshot = await eventRef.where("link", "==", data.link).get().then(async (query) => {
 
-  const eventsRef = await db.collection('on-demand-events').doc(data.eventID)
-  const doc = await eventsRef.get();
+    const doc = query.docs[0]
+
+    const interData = await utils.GetEntity("inters-data", context.auth.uid);
+
+    docUpdated = {
+      interName: interData.fullName,
+      isAnswered: true,
+      interID: context.auth.uid,
+      start: new Date().getTime(),
+      status:"online"
+    }
+ 
+    
+    const res = doc.ref.update(docUpdated)
+
+  })
 
   // get Name
-  const interData = await utils.GetEntity("inters-data", context.auth.uid);
+  // TODO send notification
+  // get the link
+  // save it in docUpdated.link
 
-  const docUpdated = {
-      interName :interData.fullName,
-      isAnswered : true,
-      interID : context.auth.uid,
-      start: new Date().getTime()
 
-  }
- 
-          // TODO send notification
-          // get the link
-          // save it in docUpdated.link
-          
-          const res = await eventsRef.update(docUpdated)
-  
+  return docUpdated.interName
 })
 exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
 
@@ -59,14 +64,14 @@ exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
   const doc = await eventsRef.get();
 
   // get Name
-  if(!doc.exists){
-    console.log('No such document!   IsInterOnDemand wrong interID');
-  }else {
-     if(doc.data().onDemand){
-       return true
-     }else{
-       return false
-     }
+  if (!doc.exists) {
+    console.log('No such document! IsInterOnDemand wrong interID');
+  } else {
+    if (doc.data().onDemand) {
+      return true
+    } else {
+      return false
+    }
   }
 })
 
@@ -81,6 +86,7 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
 
   snapshot.forEach(doc => {
 
+    cardToDb.id = doc.id
     cardToDb = Object.create(onDemandEvent.onDemandEvent)
     // make an objcet card and add it to the arr
     cardToDb.customerName = doc.data().customerName
@@ -91,7 +97,6 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
     cardToDb.isAnswered = doc.data().isAnswered
     cardToDb.start = doc.data().start
     cardToDb.requestTime = doc.data().requestTime
-    cardToDb.id = doc.data().id
     cardToDb.link = doc.data().link
 
     arr.push(cardToDb)

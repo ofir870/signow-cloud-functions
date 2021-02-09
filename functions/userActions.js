@@ -22,6 +22,8 @@ exports.GetAllNames = functions.https.onCall(async (data, context) => {
   return arr;
 })
 
+
+
 exports.GetAuthenticatedUser = functions.https.onCall((data, context) => {
   if (!context.auth) {
     // Throwing an HttpsError so that the client gets the error details.
@@ -52,6 +54,15 @@ exports.GetNameById = functions.https.onCall(async (data, context) => {
   }
 
 
+})
+
+exports.UserLogin = functions.https.onCall(async(data,context)=>{
+  if(data.isMail){
+  // preform a mail login
+  }
+  if(data.isPhone){
+    // preform a phone login
+  }
 })
 // every time user will sign in we will update is sessions array with a new date
 
@@ -86,7 +97,7 @@ exports.UpdatePassword = functions.https.onCall((data, context) => {
 })
 
 exports.CheckUserRole = functions.https.onCall((data, context) => {
-  console.log(data.uid)
+
   const userRef = db.collection('users').doc(data.uid);
   let getDoc = userRef.get().then(doc => {
 
@@ -94,7 +105,6 @@ exports.CheckUserRole = functions.https.onCall((data, context) => {
       console.log('No such document!');
       return 'false'
     } else {
-      console.log(doc.data().role)
       return doc.data().role
     }
   })

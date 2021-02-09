@@ -6,9 +6,11 @@ const Card = require('./models/eventCard')
 const db = admin.firestore();
 // var FieldValue = require("firebase-admin").FieldValue;
 exports.CreateEvent = functions.https.onCall(async (data, context) => {
+
   // validate data
   // go to customer doc with customer id from the data parameter and 
   // check if orginization as credit to active the event 
+  
   const event = data;
 
   // var start =  8 * 60 + 0;
@@ -362,10 +364,6 @@ exports.GetEventById = functions.https.onCall((data, context) => {
   return cardToDb
 })
 
-
-
-
-
 exports.GetAllEvents = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').orderBy("start", "asc");
@@ -386,7 +384,7 @@ exports.GetAllEvents = functions.https.onCall(async (data, context) => {
     cardToDb.date = doc.data().date
     cardToDb.id = doc.data().id
     cardToDb.link = doc.data().link
-
+  
     arr.push(cardToDb)
   });
   return arr;

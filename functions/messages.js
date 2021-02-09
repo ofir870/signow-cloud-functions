@@ -15,41 +15,40 @@ const client = require('twilio')(accountSid, authToken);
 // exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
 exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
-  // get all event that are in the next 30 minutes 
+  // get all event that are in the next 60 minutes 
 
   const entityRef = db.collection('events');
 
-  const allEntities = []
   const HOUR = 1000 * 60 * 60;
   let now = new Date().getTime()
   let nowPlusHour = new Date().getTime() + HOUR
   let count = 0
   const snapshot = await entityRef.where("start", ">", now).where("start", "<", nowPlusHour).get();
-  console.log(context)
   snapshot.forEach(doc => {
-    console.log(doc.data())
-    // send a SMS message by customer id
-    count++
-    client.messages
+    if(doc.data().occupied){
+
+      // send a SMS message by customer id
+      count++
+      client.messages
       .create({
         body: `
-     :הודעת תזכורת לפגישה signow
-
-     שלום  ${doc.data().customerName} נקבעה לך פגישה עם המתורגמנית  ${doc.data().interName}
-      בתאריך  :  ${doc.data().date}
-      לאורך של : ${doc.data().length} דקות.
-      
-      הלינק לפגישה הוא :   ${doc.data().link}
-      
-      `,
+        :הודעת תזכורת לפגישה signow
+        
+        שלום  ${doc.data().customerName} נקבעה לך פגישה עם המתורגמנית  ${doc.data().interName}
+        בתאריך  :  ${doc.data().date}
+        לאורך של : ${doc.data().length} דקות.
+        
+        הלינק לפגישה הוא :   ${doc.data().link}
+        
+        `,
         from: '+972523418514',
         to: `${doc.data().phone}`,
-
+        
       })
       .then(message => console.log(message.accountSid));
-  }).done();
+    }
+  })
 
-  return allEntities
 })
 exports.SendEmailVerifications  = functions.https.onCall((data,context)=>{
   
@@ -58,6 +57,7 @@ client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
 .create({to: 'ofirofir870@gmail.com', channel: 'email'})
 .then(verification => console.log(verification.sid));
 })
+
 exports.SendGridEmail = (data) => {
 
   const sgMail = require('@sendgrid/mail')
