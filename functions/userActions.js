@@ -101,18 +101,22 @@ exports.CheckIfEventNow = functions.https.onCall(async (data, context) => {
     snapshot = await entityRef.where("interID", "==", data.uid).get()
 
   }
+  const minute = 1000 * 1 * 60;
 
-  const TenMin = 1000 * 10 * 60;
   let now = new Date().getTime()
-  let nowPlusHour = new Date().getTime() + TenMin
+  let nowPlusMinute = new Date().getTime() + minute
   let count = 0
-  
+  let userName = ''
   snapshot.forEach(async doc => {
-
-    // get phone by customer id
+    if (role == "customer") {
+      userName = doc.data().customerName.replace(" ", "-")
+    } else {
+      userName = doc.data().interName.replace(" ", "-")
+    }
 
     if (doc.data().occupied) {
-      if (doc.data().start - new Date().getTime() < TenMin) {
+
+      if (doc.data().start > now && doc.data().start < nowPlusMinute) {
         link = doc.data().link
       }
     }

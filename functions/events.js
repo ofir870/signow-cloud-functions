@@ -364,7 +364,7 @@ exports.GetEventById = functions.https.onCall((data, context) => {
 
 exports.GetAllEvents = functions.https.onCall(async (data, context) => {
 
-  const eventsRef = db.collection('events').orderBy("start", "asc");
+  const eventsRef = db.collection('events').orderBy("start", "desc");
   let arr = []
   let cardToDb = ""
   const snapshot = await eventsRef.get();
