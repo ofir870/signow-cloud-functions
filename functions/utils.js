@@ -73,6 +73,38 @@ exports.GetEntity = (async (ref, id) => {
     return doc.data()
   }
 })
+
+// exports.ValidatePhoneNumber = ((data) => {
+//   var phoneno = /^\+?([0-9]{2})\)?[-. ]?([0-9]{4})[-. ]?([0-9]{4})$/;
+//   console.log(phoneno)
+//   console.log(data)
+//   if(data.match(phoneno)) {
+//     return true;
+//   }  
+//   else {  
+//     return false;
+//   }
+// })
+
+exports.CheckUserRoleInner = (uid) => {
+
+  const userRef = db.collection('users').doc(uid);
+  let getDoc = userRef.get().then(doc => {
+
+    if (!doc.exists) {
+      console.log('No such document!');
+      return 'false'
+    } else {
+      return doc.data().role
+    }
+  })
+    .catch(err => {
+      console.log('Error getting documentL uid is wrong', err);
+
+    })
+      
+  return getDoc
+}
 exports.GetEntityValue = functions.https.onCall(async (data, context) => {
 
   const cityRef = db.collection(data.ref).doc(data.id);
@@ -184,35 +216,22 @@ exports.CodeValidation = functions.https.onCall(async (data, context) => {
 })
 
 
-exports.ValidatePhone = (phone) => {
-
-  let areaCode = '+972 ';
-  areaCode += phone.substring(1, 4) + ' ';
-  print(areaCode);
-  areaCode += phone.substring(4, 7) + ' ';
-  print(areaCode);
-  areaCode += phone.substring(7);
-  print(areaCode);
-
-  return areaCode;
-}
-
 
 exports.getPasswordByPhone = (async (phone) => {
-
+  
   const customerRef = db.collection("customers-data")
   let password = ""
   const customerSnapshot = await customerRef.where("phone", "==", phone).get()
   console.log(phone)
   console.log(!customerSnapshot.empty + ": 1")
   if (!customerSnapshot.empty) {
-
+    
     customerSnapshot.forEach(doc => {
       console.log(doc.data().password)
       password = doc.data().password
     });
   }
-
+  
   const interRef = db.collection("inters-data")
   const interSnapshot = await interRef.where("phone", "==", phone).get()
   console.log(!customerSnapshot.empty + ": 2")
@@ -226,11 +245,11 @@ exports.getPasswordByPhone = (async (phone) => {
 })
 
 exports.getPasswordByEmail = (async (email) => {
-
+  
   const userRef = db.collection("users")
   let password = ""
   const customerSnapshot = await userRef.where("email", "==", email).get()
-
+  
   if (!customerSnapshot.empty) {
     customerSnapshot.forEach(async doc => {
       let customerData = await this.GetEntity("customers-data", doc.id)
@@ -240,18 +259,31 @@ exports.getPasswordByEmail = (async (email) => {
   return password
 })
 
-      // exports.GetDocParam = (async(ref,id,param)  =>  {
 
-      //   const cityRef = db.collection(ref).doc(id);
-      //   const doc = await cityRef.get();
-      //   if (!doc.exists) {
-      //     console.log('No such document!');
-      //   } else {
+// exports.ValidatePhone = (phone) => {
+
+//   let areaCode = '+972 ';
+//   areaCode += phone.substring(1, 4) + ' ';
+//   print(areaCode);
+//   areaCode += phone.substring(4, 7) + ' ';
+//   print(areaCode);
+//   areaCode += phone.substring(7);
+//   print(areaCode);
+
+//   return areaCode;
+// }
+// exports.GetDocParam = (async(ref,id,param)  =>  {
+  
+  //   const cityRef = db.collection(ref).doc(id);
+  //   const doc = await cityRef.get();
+  //   if (!doc.exists) {
+    //     console.log('No such document!');
+    //   } else {
       //     console.log('Document data:', doc.data());
       //    return doc.data()
       //   }
       // })
-
+      
       // exports.GetUsersFromJson = functions.https.onRequest((req, res) => {
         //     var request = require('../usersTest.json'); 
         //     restore(request, {

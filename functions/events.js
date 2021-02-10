@@ -86,14 +86,12 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
     // create event in oldEvents
     let setEvent = await db.collection('events-old').doc(doc.id).set(doc.data())
     // delete event from events
-    // let deleteEvent = await db.collection('events-test').doc(doc.id).delete()
+    let deleteEvent = await db.collection('events').doc(doc.id).delete()
 
-    // let tempObj = doc.data()
-    // tempObj.id = doc.id
-    // arr.push(tempObj)
 
+      console.log("events moved to old-event")
   })
-  // return arr
+ 
 
 })
 

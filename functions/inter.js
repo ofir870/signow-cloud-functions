@@ -4,7 +4,6 @@ const utils = require('./utils')
 const db = admin.firestore();
 const messages = require("./messages")
 exports.CreateInter = functions.https.onCall((data, context) => {
-
     const inter = {
         "interpreterID": data.interID,
         "desc": data.desc,
@@ -21,6 +20,7 @@ exports.CreateInter = functions.https.onCall((data, context) => {
         "role": "inter"
 
     }
+    inter.phone = "+972" + parseInt(inter.phone)
 
     let batch = db.batch();
     let setInter = db.collection('inters-data').doc(data.interID);
@@ -44,79 +44,79 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 
 exports.InterBookEvent = functions.https.onCall(async (data, context) => {
     try {
-    const eventsRef = await db.collection('events').doc(data.eventID)
-    const doc = await eventsRef.get();
+        const eventsRef = await db.collection('events').doc(data.eventID)
+        const doc = await eventsRef.get();
 
-    // get Name
-    const interData = await utils.GetEntity("inters-data", context.auth.uid);
+        // get Name
+        const interData = await utils.GetEntity("inters-data", context.auth.uid);
 
-    const docUpdated = {
-        interName :interData.fullName,
-        occupied : true,
-        interID : context.auth.uid,
-        link : data.link,
-        eventBookedTime: new Date().getTime()
+        const docUpdated = {
+            interName: interData.fullName,
+            occupied: true,
+            interID: context.auth.uid,
+            link: data.link,
+            eventBookedTime: new Date().getTime()
 
-    }
-    if (!doc.exists) {
-        console.log('No such document!');
-    } else {
-        
-        if (doc.data().occupied) {
-            return false
         }
-        else {
-            // TODO need to  check  user comunication method if its email or phone only then send a message to this method
-            // get the link
-            // save it in docUpdated.link
-            
-            const res = await eventsRef.update(docUpdated)
-            const getInter = await utils.GetEntity('inters-data',context.auth.uid)
-            const getUserInter = await utils.GetEntity('users',context.auth.uid)
-            const getCus = await utils.GetEntity('customers-data',doc.data().customerID)
-            const getUserCus= await utils.GetEntity('users',doc.data().customerID)
-            
-            // get inter mail by id
-            // getCustomer mail by id
-            const gridData = { 
-                interMail:getUserInter.email,
-                customerMail:getUserCus.email,
-                interName:getInter.fullName,
-                customerName:getCus.fullName,
-                meetingTime:doc.data().date,
-                meetingLength:doc.data().length,
-                meetingLink:data.link,
-                
-            }
-            
-            const SMSData = {
-                interName:getInter.fullName,
-                customerName:getCus.fullName,
-                customerPhone:getCus.phone,
-                interPhone:getInter.phone,
-                eventTime:doc.data().date,
-                eventLength:doc.data().length,
-                eventLink:data.link
-            }
-            
-            if(interData.phone){
+        if (!doc.exists) {
+            console.log('No such document!');
+        } else {
 
-                messages.SendSMSOnClosedEvent(SMSData)
+            if (doc.data().occupied) {
+                return false
             }
-            if(interData.email){
+            else {
+                // TODO need to  check  user comunication method if its email or phone only then send a message to this method
+                // get the link
+                // save it in docUpdated.link
 
-                messages.SendSMSOnClosedEvent(SMSData)
+                const res = await eventsRef.update(docUpdated)
+                const getInter = await utils.GetEntity('inters-data', context.auth.uid)
+                const getUserInter = await utils.GetEntity('users', context.auth.uid)
+                const getCus = await utils.GetEntity('customers-data', doc.data().customerID)
+                const getUserCus = await utils.GetEntity('users', doc.data().customerID)
+
+                // get inter mail by id
+                // getCustomer mail by id
+                const gridData = {
+                    interMail: getUserInter.email,
+                    customerMail: getUserCus.email,
+                    interName: getInter.fullName,
+                    customerName: getCus.fullName,
+                    meetingTime: doc.data().date,
+                    meetingLength: doc.data().length,
+                    meetingLink: data.link,
+
+                }
+
+                const SMSData = {
+                    interName: getInter.fullName,
+                    customerName: getCus.fullName,
+                    customerPhone: getCus.phone,
+                    interPhone: getInter.phone,
+                    eventTime: doc.data().date,
+                    eventLength: doc.data().length,
+                    eventLink: data.link
+                }
+
+                if (interData.phone) {
+
+                    messages.SendSMSOnClosedEvent(SMSData)
+                }
+                if (interData.email) {
+
+                    messages.SendSMSOnClosedEvent(SMSData)
+                }
+
+                messages.SendGridEmail(gridData)
+
+                // TODO phone-message to both  customer and inter with meeting details
+                return true
             }
-
-            messages.SendGridEmail(gridData)
-            
-            // TODO phone-message to both  customer and inter with meeting details
-            return true
         }
-    }
-} catch (error) {
+    } catch (error) {
         console.log(error)
-}
+    }
 })
 exports.GetAllInters = functions.https.onCall(async (data, context) => {
 

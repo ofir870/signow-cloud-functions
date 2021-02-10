@@ -12,6 +12,7 @@ exports.GetAllCustomers = customer.GetAllCustomers
 exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
 exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
+exports.CreateCustomerTest = customer.CreateCustomerTest
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
 
 
@@ -65,13 +66,14 @@ exports.onUpdateEvent = triggers.onUpdateEvent
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
 exports.CheckUserRole = userActions.CheckUserRole
-exports.GetPhoneOfUser = userActions.GetPhoneOfUser
 exports.UpdatePassword = userActions.UpdatePassword
 exports.GetMailById = userActions.GetMailById
 exports.ResetPasswordLink = userActions.ResetPasswordLink
 exports.GetPasswordByEmail = userActions.GetPasswordByEmail
 exports.GetPasswordByPhone = userActions.GetPasswordByPhone
 exports.GetAuthenticatedUser = userActions.GetAuthenticatedUser
+exports.GetPhoneById= userActions.GetPhoneById
+exports.CheckIfEventNow= userActions.CheckIfEventNow
 
 
 

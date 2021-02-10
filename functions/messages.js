@@ -4,6 +4,7 @@ const db = admin.firestore();
 const nodemailer = require("nodemailer");
 const config = require("./config")
 const utils = require('./utils');
+const userActions = require('./userActions');
 
 
 
@@ -12,7 +13,7 @@ const authToken = config.twilio.authToken;
 
 const client = require('twilio')(accountSid, authToken);
 
-// exports.ScheduledEmail = functions.https.onCall(async (data, context) => {
+// exports.ScheduledEmailMessage = functions.https.onCall(async (data, context) => {
 exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 60 minutes 
@@ -23,15 +24,22 @@ exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(asy
   let now = new Date().getTime()
   let nowPlusHour = new Date().getTime() + HOUR
   let count = 0
+  // console.log(new Date().getTime()+ 1000 * 60 * 60)
   const snapshot = await entityRef.where("start", ">", now).where("start", "<", nowPlusHour).get();
-  snapshot.forEach(doc => {
-    if(doc.data().occupied){
+  snapshot.forEach(async doc => {
+
+    let phone = ""
+    // get phone by customer id
+    let get = await userActions.GetPhoneById(doc.data().customerID).then(d => {
+      phone = d
+    })
+    if (doc.data().occupied) {
 
       // send a SMS message by customer id
       count++
       client.messages
-      .create({
-        body: `
+        .create({
+          body: `
         :הודעת תזכורת לפגישה signow
         
         שלום  ${doc.data().customerName} נקבעה לך פגישה עם המתורגמנית  ${doc.data().interName}
@@ -41,21 +49,21 @@ exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(asy
         הלינק לפגישה הוא :   ${doc.data().link}
         
         `,
-        from: '+972523418514',
-        to: `${doc.data().phone}`,
-        
-      })
-      .then(message => console.log(message.accountSid));
+          from: '+972523418514',
+          to: phone,
+
+        })
+        .then(message => console.log(message.accountSid));
     }
   })
 
 })
-exports.SendEmailVerifications  = functions.https.onCall((data,context)=>{
-  
-client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-.verifications
-.create({to: 'ofirofir870@gmail.com', channel: 'email'})
-.then(verification => console.log(verification.sid));
+exports.SendEmailVerifications = functions.https.onCall((data, context) => {
+
+  client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    .verifications
+    .create({ to: 'ofirofir870@gmail.com', channel: 'email' })
+    .then(verification => console.log(verification.sid));
 })
 
 exports.SendGridEmail = (data) => {
