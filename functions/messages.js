@@ -1,15 +1,19 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
+const messaging = firebase.messaging();
 const nodemailer = require("nodemailer");
 const config = require("./config")
 const utils = require('./utils');
 const userActions = require('./userActions');
+var http = require('http');
+var express = require('express');
+var twilio = require('twilio');
+const MessagingResponse = require('twilio').twiml.MessagingResponse
+var app = express();
 
-
-
-const accountSid = config.twilio.accountSid;
-const authToken = config.twilio.authToken;
+const accountSid = functions.config().twilio.accountsid;
+const authToken = functions.config().config.twilio.authToken;
 
 const client = require('twilio')(accountSid, authToken);
 
@@ -17,7 +21,7 @@ const client = require('twilio')(accountSid, authToken);
 exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 60 minutes 
-
+  
   const entityRef = db.collection('events');
 
   const HOUR = 1000 * 60 * 60;
@@ -58,6 +62,15 @@ exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(asy
   })
 
 })
+
+
+exports.GetMessagingObject = functions.https.onCall((data, context) => {
+  messaging.getToken({ vapidKey: "BCODQ9BgVJPcnEMeu3BNWwIo0z6-yd8FI7BDT8AXzdKZ_Ckfq2-8Jk6wJhnQwPwLpScQC6GATMJkM4wcoWPomL4" });
+
+  // [START messaging_get_messaging_object]
+  const messaging = firebase.messaging();
+  // [END messaging_get_messaging_object]
+})
 exports.SendEmailVerifications = functions.https.onCall((data, context) => {
 
   client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
@@ -65,6 +78,29 @@ exports.SendEmailVerifications = functions.https.onCall((data, context) => {
     .create({ to: 'ofirofir870@gmail.com', channel: 'email' })
     .then(verification => console.log(verification.sid));
 })
+
+exports.ReplySMS = functions.https.onRequest((req, res) => {
+  console.log("start function: ReplySMS ")
+
+  // Create TwiML response
+
+  const app = express();
+
+  const twiml = new MessagingResponse();
+
+  twiml.message('The Robots are coming! Head for the hills!');
+
+  res.writeHead(204, { 'Content-Type': 'text/xml' });
+  res.end(twiml.toString());
+  // http.createServer(app).listen(8080, () => {
+  //   console.log('Express server listening on port 1337');
+  // })
+});
+
+
+
+
+
 
 exports.SendGridEmail = (data) => {
 

@@ -13,6 +13,7 @@ exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
 exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
 exports.CreateCustomerTest = customer.CreateCustomerTest
+exports.UpdateCustomer = customer.UpdateCustomer
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
 
 
@@ -24,11 +25,13 @@ exports.CreateInter = inter.CreateInter
 exports.GetAllInters = inter.GetAllInters
 exports.GetInterNameById = inter.GetInterNameById
 exports.InterBookEvent = inter.InterBookEvent
+exports.CreateInterTest = inter.CreateInterTest
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
 const eventsOD = require('./onDemantEvents')
 exports.CreateOnDemandEvent = eventsOD.CreateOnDemandEvent
+exports.UpdateODM = eventsOD.UpdateODM
 
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
@@ -54,6 +57,7 @@ exports.UpdateOrginization = orginization.UpdateOrginization
 exports.GetOrginizations = orginization.GetOrginizations
 exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
 exports.GetOrginizationCreditByCode = orginization.GetOrginizationCreditByCode
+exports.CheckOrginizationAbility = orginization.CheckOrginizationAbility
 
 const triggers = require('./triggers')
 exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
@@ -61,7 +65,7 @@ exports.ChangeRoleInter = triggers.ChangeRoleInter
 exports.OnDelete = triggers.OnDelete
 exports.OnUserSignUp = triggers.OnUserSignUp
 exports.onUpdateEvent = triggers.onUpdateEvent
-// exports.OnCreateEvent = triggers.OnCreateEvent
+exports.OnCreateEvent = triggers.OnCreateEvent
 
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
@@ -75,14 +79,13 @@ exports.GetAuthenticatedUser = userActions.GetAuthenticatedUser
 exports.GetPhoneById= userActions.GetPhoneById
 exports.CheckIfEventNow= userActions.CheckIfEventNow
 
-
-
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
 exports.SendSMSOnClosedEvent = messages.SendSMSOnClosedEvent
 exports.SendGridEmail = messages.SendGridEmail
 exports.ScheduledEmailMessage = messages.ScheduledEmailMessage
 exports.SendEmailVerifications = messages.SendEmailVerifications
+exports.ReplySMS = messages.ReplySMS
 
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
@@ -148,3 +151,19 @@ app.get('/', function (req, res) {
 
 
 exports.app = functions.https.onRequest(app);
+
+
+const registerServiceWorker = () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('./firebase-messaging-sw.js')
+      .then(function (registration) {
+        console.log('Registration successful, scope is:', registration.scope);
+      })
+      .catch(function (err) {
+        console.log('Service worker registration failed, error:', err);
+      });
+  }
+};
+
+registerServiceWorker();

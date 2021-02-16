@@ -67,3 +67,7 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+# local environment
+.runtimeconfig.json
+

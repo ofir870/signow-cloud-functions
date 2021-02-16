@@ -58,8 +58,6 @@ exports.OnUserSignUp = functions.auth.user().onCreate(async (user) => {
         }
     }
 
-
-
     return db.collection('users').doc(user.uid).set(JSON.parse(JSON.stringify(data)));
 });
 exports.OnDelete = functions.auth.user().onDelete(async (user) => {
@@ -101,6 +99,43 @@ exports.OnDelete = functions.auth.user().onDelete(async (user) => {
     }
 });
 
+exports.OnCreateEvent = functions.firestore.document('on-demand-events/{id}')
+    .onCreate((snap, context) => {
+        
+        console.log("on-demand-events")
+        console.log(context)
+        console.log(snap)
+        async function getInters() {
+            const snapshot = await admin.firestore().collection('inters-data').get()
+            return snapshot.docs.map(doc => doc.data());
+        }    
+        return getInters().then(list => {
+            if (list.length === 0)
+                return "No-Availability"
+            list.sort()    
+            list = list.map(inter => inter.token)
+            list = list.filter(function (el) {
+                return el !== null;
+            });    
+            return _send(list, context)
+        }) 
+
+
+    })
+    function _send(list, context) {
+    var i = 0;
+    var message = {
+        notification: {
+            title: "בקשת תרגום",
+            body: context.auth.uid
+        },
+        webpush: {
+            fcm_options: {
+                link: requestID
+            }
+        }
+    };
+}
 // exports.OnCreateEvent = functions.firestore.document('events/{Id}')
 //     .onCreate((snap, context) => {
 

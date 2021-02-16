@@ -27,9 +27,7 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
         "disabled": false,
         "role": 'customer',
         "code": data.code,
-
     }
-
     // change phone to +972 and take of the 0 in the start 
     customer.phone = "+972" + parseInt(customer.phone)
     // validate code
@@ -56,130 +54,128 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
 
 exports.CreateCustomerTest = functions.https.onCall((data, context) => {
 
-
     let phone = "+972" + parseInt(data.phone)
- 
-    
-    if(data.communicationMethod =="email") {
-        
+
+    if (data.communicationMethod == "email") {
+
         admin.auth().createUser(
             {
-                email: data.email,   
+                email: data.email,
                 phoneNumber: phone,
                 password: data.password,
                 displayName: data.fullName,
                 disabled: false,
-            } )
+            })
 
             .then((userRecord) => {
                 // See the UserRecord reference doc for the contents of userRecord.
                 console.log('Successfully created new user:', userRecord.uid);
-                
+
                 if (!userRecord.uid || !data.code || !data.phone || !data.identityNumber) {
                     return "Missing: data of customer on demand"
-            
-            }
-   
-    const customer = {
-        "customerID": userRecord.uid,
-        "cardID": data.cardID,
-        "phone": data.phone,
-        "address": data.address,
-        'identityNumber': data.identityNumber,
-        'password': data.password,
-        "fullName": data.fullName,
-        "birthDate": data.birthDate,
-        "disabled": false,
-        "role": 'customer',
-        "code": data.code,
-        'communicationMethod': data.communicationMethod
 
+                }
+
+                const customer = {
+                    "customerID": userRecord.uid,
+                    "cardID": data.cardID,
+                    "phone": data.phone,
+                    "address": data.address,
+                    'identityNumber': data.identityNumber,
+                    'password': data.password,
+                    "fullName": data.fullName,
+                    "birthDate": data.birthDate,
+                    "disabled": false,
+                    "role": 'customer',
+                    "code": data.code,
+                    'communicationMethod': data.communicationMethod
+
+                }
+
+                // change phone to +972 and take of the 0 in the start 
+
+                // validate code
+
+                let batch = db.batch();
+
+                let setCustomer = db.collection('customers-data').doc(userRecord.uid);
+
+                batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
+
+                let changeRole = db.collection('users').doc(userRecord.uid);
+                let changeCode = db.collection('users').doc(userRecord.uid);
+
+                batch.set(changeCode, { "code": data.code }, { "merge": true });
+                batch.set(changeRole, { "role": "customer" }, { "merge": true });
+
+                return batch.commit().then(function () {
+                    return true;
+                }).catch(err => {
+                    return err
+                })
+            }).catch(err => {
+                return err
+            })
+
+    } else {
+
+        admin.auth().createUser(
+            {
+                phoneNumber: phone,
+                password: data.password,
+                displayName: data.fullName,
+                disabled: false,
+            })
+            .then((userRecord) => {
+                // See the UserRecord reference doc for the contents of userRecord.
+                console.log('Successfully created new user:', userRecord.uid);
+
+                if (!userRecord.uid || !data.code || !data.phone || !data.identityNumber) {
+                    return "Missing: data of customer on demand"
+
+                }
+
+                const customer = {
+                    "customerID": userRecord.uid,
+                    "cardID": data.cardID,
+                    "phone": data.phone,
+                    "address": data.address,
+                    'identityNumber': data.identityNumber,
+                    'password': data.password,
+                    "fullName": data.fullName,
+                    "birthDate": data.birthDate,
+                    "disabled": false,
+                    "role": 'customer',
+                    "code": data.code,
+                    'communicationMethod': data.communicationMethod
+
+                }
+
+                // change phone to +972 and take of the 0 in the start 
+
+                // validate code
+
+                let batch = db.batch();
+
+                let setCustomer = db.collection('customers-data').doc(userRecord.uid);
+
+                batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
+
+                let changeRole = db.collection('users').doc(userRecord.uid);
+                let changeCode = db.collection('users').doc(userRecord.uid);
+
+                batch.set(changeCode, { "code": data.code }, { "merge": true });
+                batch.set(changeRole, { "role": "customer" }, { "merge": true });
+
+                return batch.commit().then(function () {
+                    return true;
+                }).catch(err => {
+                    return err
+                })
+            }).catch(err => {
+                return err
+            })
     }
-
-    // change phone to +972 and take of the 0 in the start 
-    
-    // validate code
-
-    let batch = db.batch();
-
-    let setCustomer = db.collection('customers-data').doc(userRecord.uid);
-
-    batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
-
-    let changeRole = db.collection('users').doc(userRecord.uid);
-    let changeCode = db.collection('users').doc(userRecord.uid);
-
-    batch.set(changeCode, { "code": data.code }, { "merge": true });
-    batch.set(changeRole, { "role": "customer" }, { "merge": true });
-
-    return batch.commit().then(function () {
-        return true;
-    }).catch(err => {
-        return err
-    })
-}).catch(err => {
-    return err
-}) 
-
-}else{
-      
-    admin.auth().createUser(
-        {  
-            phoneNumber: phone,
-            password: data.password,
-            displayName: data.fullName,
-            disabled: false,
-        } )
-        .then((userRecord) => {
-            // See the UserRecord reference doc for the contents of userRecord.
-            console.log('Successfully created new user:', userRecord.uid);
-            
-            if (!userRecord.uid || !data.code || !data.phone || !data.identityNumber) {
-                return "Missing: data of customer on demand"
-        
-        }
-
-const customer = {
-    "customerID": userRecord.uid,
-    "cardID": data.cardID,
-    "phone": data.phone,
-    "address": data.address,
-    'identityNumber': data.identityNumber,
-    'password': data.password,
-    "fullName": data.fullName,
-    "birthDate": data.birthDate,
-    "disabled": false,
-    "role": 'customer',
-    "code": data.code,
-    'communicationMethod': data.communicationMethod
-
-}
-
-// change phone to +972 and take of the 0 in the start 
-
-// validate code
-
-let batch = db.batch();
-
-let setCustomer = db.collection('customers-data').doc(userRecord.uid);
-
-batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
-
-let changeRole = db.collection('users').doc(userRecord.uid);
-let changeCode = db.collection('users').doc(userRecord.uid);
-
-batch.set(changeCode, { "code": data.code }, { "merge": true });
-batch.set(changeRole, { "role": "customer" }, { "merge": true });
-
-return batch.commit().then(function () {
-    return true;
-}).catch(err => {
-    return err
-})
-}).catch(err => {
-return err
-})
-}
 })
 exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
 
@@ -213,7 +209,7 @@ exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
                 "role": 'customerOnDemand',
                 "code": data.code
             }
-        
+
             // validate code
 
             let batch = db.batch();
@@ -291,6 +287,12 @@ exports.EmailValidation = functions.https.onCall(async (data, context) => {
     }
 })
 
+exports.UpdateCustomer = functions.https.onCall((data, context) => {
+    let update = utils.UpdateEntity(data.customerID, "customers-data", data.key, data.val).then(answer => {
+        return answer
+    })
+
+})
 
 exports.CreateCustomerRating = functions.https.onCall((data, context) => {
     if (!data.customerID || !data.interID || !data.string || !data.rating) {

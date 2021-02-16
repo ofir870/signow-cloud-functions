@@ -60,6 +60,27 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     })
 })
 
+
+
+exports.CheckOrginizationAbility = functions.https.onCall(async (data, context) => {
+    let code;
+    const getCode = await utils.CheckUserCodeInner(context.auth.uid).then(c => {
+        code = c
+    })
+
+    let orgRef = db.collection('orginization')
+    let snapshot = await orgRef.where("code", "==", code).get()
+    if (snapshot.empty) {
+        console.log('No matching documents.');
+        return;
+    }
+    let answer;
+    snapshot.forEach(doc => {
+        answer = doc.data().ability
+    })
+
+    return answer
+})
 exports.GetAllOrginizationCustomers = functions.https.onCall(async (data, context) => {
     let arr = [];
     const customersRef = db.collection('users')

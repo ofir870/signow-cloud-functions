@@ -22,14 +22,13 @@ exports.GetAllNames = functions.https.onCall(async (data, context) => {
   return arr;
 })
 
-
-
-
 exports.GetAuthenticatedUser = functions.https.onCall((data, context) => {
   if (!context.auth) {
+    console.log("lalaal")
     // Throwing an HttpsError so that the client gets the error details.
     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
       'while authenticated.');
+
   } else {
     let doc = {
       "userName": context.auth.userName,
@@ -38,7 +37,6 @@ exports.GetAuthenticatedUser = functions.https.onCall((data, context) => {
     }
     return doc
   }
-
 })
 
 exports.GetNameById = functions.https.onCall(async (data, context) => {
@@ -84,7 +82,7 @@ exports.GetPhoneById = (async (uid) => {
 
 exports.CheckIfEventNow = functions.https.onCall(async (data, context) => {
   let snapshot = []
-  let link = ""
+  let link = "empty"
   let role = ''
   let getRole = await utils.CheckUserRoleInner(data.uid).then(doc => {
     role = doc
@@ -101,12 +99,13 @@ exports.CheckIfEventNow = functions.https.onCall(async (data, context) => {
     snapshot = await entityRef.where("interID", "==", data.uid).get()
 
   }
-  const minute = 1000 * 1 * 60;
+  const tenMinute = 1000 * 10 * 60;
 
   let now = new Date().getTime()
-  let nowPlusMinute = new Date().getTime() + minute
-  let count = 0
+  let nowPlusTenMinute = new Date().getTime() + tenMinute
+
   let userName = ''
+  console.log(new Date().getTime() + tenMinute)
   snapshot.forEach(async doc => {
     if (role == "customer") {
       userName = doc.data().customerName.replace(" ", "-")
@@ -116,27 +115,28 @@ exports.CheckIfEventNow = functions.https.onCall(async (data, context) => {
 
     if (doc.data().occupied) {
 
-      if (doc.data().start > now && doc.data().start < nowPlusMinute) {
-        link = doc.data().link
+      if (doc.data().start > now && doc.data().start < nowPlusTenMinute) {
+        link = doc.data().link + "&name=" + userName
+
       }
     }
   })
-  if (link.length > 4) {
+  if (link != "empty") {
     return link
   } else {
     return "no matched event"
   }
 })
 
-exports.UserLogin = functions.https.onCall(async (data, context) => {
+exports.HandleLogin = functions.https.onCall(async (data, context) => {
   if (data.isMail) {
-    // preform a mail login
+    // preform a mail handle login
   }
   if (data.isPhone) {
-    // preform a phone login
+    // preform a phone handle login
   }
 })
-// every time user will sign in we will update is sessions array with a new date
+
 
 exports.UpdateLastLogin = functions.https.onCall((data, context) => {
 

@@ -9,4 +9,5 @@ exports.EventCard =  {
     "start": Number,
     "length": Number,
     "date": String
+    
   }

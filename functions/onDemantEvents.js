@@ -78,14 +78,14 @@ exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
 
 
 exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
-
+  
   const eventsRef = db.collection('events').orderBy("start", "desc");
   let arr = []
   let cardToDb = ""
   const snapshot = await eventsRef.get();
-
+  
   snapshot.forEach(doc => {
-
+    
     cardToDb.id = doc.id
     cardToDb = Object.create(onDemandEvent.onDemandEvent)
     // make an objcet card and add it to the arr
@@ -98,9 +98,18 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
     cardToDb.start = doc.data().start
     cardToDb.requestTime = doc.data().requestTime
     cardToDb.link = doc.data().link
-
+    
     arr.push(cardToDb)
   });
   return arr;
+  
+})
+
+
+exports.UpdateODM = functions.https.onCall(async (data, context) => {
+
+let update = utils.UpdateAllCollection("ODM","test","test").then(answer=>{
+  return answer
+})
 
 })

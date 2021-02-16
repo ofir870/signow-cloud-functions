@@ -10,7 +10,7 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   // validate data
   // go to customer doc with customer id from the data parameter and 
   // check if orginization as credit to active the event 
-  
+
   const event = data;
 
   // var start =  8 * 60 + 0;
@@ -73,7 +73,9 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
 exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events');
+
   let now = new Date().getTime() + 1000 * 60 * 60
+
   const snapshot = await eventsRef.where("start", "<", now).get()
 
 
@@ -81,17 +83,16 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
     console.log('No matching documents.');
     return;
   }
-  snapshot.forEach(async doc =>  {
+  snapshot.forEach(async doc => {
 
     // create event in oldEvents
     let setEvent = await db.collection('events-old').doc(doc.id).set(doc.data())
     // delete event from events
     let deleteEvent = await db.collection('events').doc(doc.id).delete()
 
-
-      console.log("events moved to old-event")
+    console.log("events moved to old-event")
   })
- 
+
 
 })
 
@@ -120,6 +121,14 @@ exports.DeleteEventById = functions.https.onCall(async (data, context) => {
     // delete 
     const res = await db.collection('events').doc(data.eventID).delete();
     console.log("just deleted an event")
+  }
+
+  if (doc.data().occupied == true) {
+    // event id
+    // 
+    return doc.data().gEventId
+  } else {
+    return false
   }
 
 })
@@ -216,11 +225,11 @@ exports.GetAllNotOccupiedEvents = functions.https.onCall(async (data, context) =
 
 exports.GetHistoriesEventsByUserId = functions.https.onCall(async (data, context) => {
 
-  const eventsRef = await db.collection('events')
+  const eventsRef = await db.collection('events-old')
   let date = new Date()
   date.getTime()
 
-  const snapshot = await eventsRef.where("start", "<", date).get();
+  const snapshot = await eventsRef.get();
   let arr = []
   if (snapshot.empty) {
     console.log('No matching documents.');
@@ -382,7 +391,7 @@ exports.GetAllEvents = functions.https.onCall(async (data, context) => {
     cardToDb.date = doc.data().date
     cardToDb.id = doc.data().id
     cardToDb.link = doc.data().link
-  
+
     arr.push(cardToDb)
   });
   return arr;
