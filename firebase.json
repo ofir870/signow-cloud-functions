@@ -4,6 +4,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "target":"signowvideo",
     "public": "functions/videochat/client/build",
     "ignore": [
       "**/client/node_modules/**"  
@@ -18,6 +19,11 @@
     },
     {
       "source": "/video/token",
+      "function": "app"
+    }
+    ,
+    {
+      "source": "/video/disconnect",
       "function": "app"
     } ]
   }
