@@ -83,17 +83,17 @@ exports.CheckOrginizationAbility = functions.https.onCall(async (data, context) 
 })
 exports.GetAllOrginizationCustomers = functions.https.onCall(async (data, context) => {
     let arr = [];
-    const customersRef = db.collection('users')
+    const customersRef = db.collection('customers-data')
 
-    const snapshot = await customersRef.where("orginization", "==", data.orginizationId).get();
+    const snapshot = await customersRef.where("code", "==", data.code).get();
 
     if (snapshot.empty) {
         console.log('No matching user documents.');
         return;
     }
     snapshot.forEach(doc => {
-        let tempObj = doc.data()
-        arr.push(tempObj)
+
+        arr.push(doc.data())
     });
     return arr
 })
@@ -112,9 +112,7 @@ exports.GetAllOrginizations = functions.https.onCall(async (data, context) => {
     const snapshot = await orginizationRef.get()
     snapshot.forEach(doc => {
         // console.log(doc.id, '=>', doc.data());
-        let tempObj = doc.data()
-        tempObj.id = doc.id
-        arr.push(tempObj)
+        arr.push(doc.data())
 
     })
     return arr

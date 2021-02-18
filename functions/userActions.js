@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const utils = require('./utils');
 const { auth } = require('firebase-admin');
+const { user } = require('firebase-functions/lib/providers/auth');
 const db = admin.firestore();
 
 
@@ -21,6 +22,118 @@ exports.GetAllNames = functions.https.onCall(async (data, context) => {
   });
   return arr;
 })
+exports.LinkAllIntersWithPhoneNumber = functions.https.onCall(async (data, context) => {
+
+  const customersRef = db.collection('inters-data')
+
+  const snapshot = await customersRef.get();
+  if (snapshot.empty) {
+    console.log('No matching documents.');
+    return;
+  }
+
+  snapshot.forEach(doc => {
+    let phone = doc.data().phone
+    let newPhone = doc.data().phone
+    let userRecord;
+    phone = phone.toString()
+
+    if (!phone.includes("+972")) {
+      // console.log("PDPDPD"+newPhone )
+      newPhone = "+972" + parseInt(newPhone)
+      // console.log("PDPDPD"+newPhone )
+    }
+    if (!newPhone) {
+      return "Error: no phone to this user" + doc.id
+    } else {
+
+
+      admin.auth().getUser(doc.id)
+        .then(async (userRecord) => {
+
+          userRecord = await admin.auth().updateUser(userRecord.uid, { phoneNumber: newPhone })
+            .then(function (userRecord) {
+              // See the UserRecord reference doc for the contents of `userRecord`.
+              console.log("Successfully updated user", userRecord.toJSON());
+            })
+            .catch(function (error) {
+              console.log("Error updating user:", error);
+            });
+        })
+        .catch((error) => {
+          console.log('Error fetching user data:', error);
+        });
+      return userRecord
+
+    }
+  });
+
+})
+
+
+exports.DeleteUserById = functions.https.onCall(async (data, context) => {
+
+  admin.auth().deleteUser(data.uid).then(() => {
+    // See the UserRecord reference doc for the contents of userRecord.
+    console.log('Successfully deleted user');
+  })
+  .catch((error) => {
+    console.log('Error fetching user data:', error);
+  });
+   
+})
+exports.LinkUserWithPhoneNumber = functions.https.onCall(async (data, context) => {
+  let ref = {}
+  if (data.role == "customer")
+    ref = await db.collection('customers-data').doc(data.uid)
+  else {
+
+    ref = await db.collection('inters-data').doc(data.uid)
+  }
+
+  const doc = await ref.get();
+  console.log(doc)
+  if (!doc.exists) {
+    console.log('No matching documents.');
+    return;
+  }
+
+ 
+    let phone = doc.data().phone
+    let newPhone = doc.data().phone
+    let userRecord;
+    phone = phone.toString()
+
+    if (!phone.includes("+972")) {
+      // console.log("PDPDPD"+newPhone )
+      newPhone = "+972" + parseInt(newPhone)
+      // console.log("PDPDPD"+newPhone )
+    }
+    if (!newPhone) {
+      return "Error: no phone to this user" + doc.id
+    } else {
+
+
+      admin.auth().getUser(doc.id)
+        .then(async (userRecord) => {
+
+          userRecord = await admin.auth().updateUser(userRecord.uid, { phoneNumber: newPhone })
+            .then(function (userRecord) {
+              // See the UserRecord reference doc for the contents of `userRecord`.
+              console.log("Successfully updated user", userRecord.toJSON());
+            })
+            .catch(function (error) {
+              console.log("Error updating user:", error);
+            });
+        })
+        .catch((error) => {
+          console.log('Error fetching user data:', error);
+        });
+      return userRecord
+
+    }
+  });
+
 
 exports.GetAuthenticatedUser = functions.https.onCall((data, context) => {
   if (!context.auth) {
@@ -79,6 +192,7 @@ exports.GetPhoneById = (async (uid) => {
     return inter.phone
   }
 })
+
 
 exports.CheckIfEventNow = functions.https.onCall(async (data, context) => {
   let snapshot = []

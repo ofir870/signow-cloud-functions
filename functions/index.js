@@ -76,8 +76,11 @@ exports.ResetPasswordLink = userActions.ResetPasswordLink
 exports.GetPasswordByEmail = userActions.GetPasswordByEmail
 exports.GetPasswordByPhone = userActions.GetPasswordByPhone
 exports.GetAuthenticatedUser = userActions.GetAuthenticatedUser
-exports.GetPhoneById= userActions.GetPhoneById
-exports.CheckIfEventNow= userActions.CheckIfEventNow
+exports.GetPhoneById = userActions.GetPhoneById
+exports.CheckIfEventNow = userActions.CheckIfEventNow
+exports.LinkUserWithPhoneNumber = userActions.LinkUserWithPhoneNumber
+exports.LinkAllIntersWithPhoneNumber = userActions.LinkAllIntersWithPhoneNumber
+exports.DeleteUserById = userActions.DeleteUserById
 
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
@@ -90,6 +93,7 @@ exports.ReplySMS = messages.ReplySMS
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
 exports.GetEntityValue = utils.GetEntityValue
+exports.IsTimeValid = utils.IsTimeValid
 
 const onDemand = require('./onDemantEvents')
 exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
@@ -143,27 +147,25 @@ app.get('/', function (req, res) {
 });
 
 
+
 // define the serving port to be the VM env port or 8080 on local machine
 // app.listen(process.env.PORT || 8080, () =>
 //   console.log('Express server is running on localhost:8080')
 // );
 
-
-
 exports.app = functions.https.onRequest(app);
 
+// const registerServiceWorker = () => {
+//   if ('serviceWorker' in navigator) {
+//     navigator.serviceWorker
+//       .register('./firebase-messaging-sw.js')
+//       .then(function (registration) {
+//         console.log('Registration successful, scope is:', registration.scope);
+//       })
+//       .catch(function (err) {
+//         console.log('Service worker registration failed, error:', err);
+//       });
+//   }
+// };
 
-const registerServiceWorker = () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker
-      .register('./firebase-messaging-sw.js')
-      .then(function (registration) {
-        console.log('Registration successful, scope is:', registration.scope);
-      })
-      .catch(function (err) {
-        console.log('Service worker registration failed, error:', err);
-      });
-  }
-};
-
-registerServiceWorker();
+// registerServiceWorker();

@@ -246,21 +246,21 @@ exports.GetCustomerNameById = functions.https.onCall(async (data, context) => {
 })
 // get all customer of one orginization
 exports.GetAllCustomers = functions.https.onCall(async (data, context) => {
+    let arr = []
+    const customersRef = db.collection('customers-data')
 
-    const customersRef = db.collection('users')
-
-    const snapshot = await customersRef.where("role", "==", "customer").get();
+    const snapshot = await customersRef.get();
     if (snapshot.empty) {
         console.log('No matching documents.');
         return;
     }
 
     snapshot.forEach(doc => {
-
-
-        console.log(doc.id, '=>', doc.data());
-
+        arr.push(doc.data())
     });
+    
+    return arr
+
 })
 
 

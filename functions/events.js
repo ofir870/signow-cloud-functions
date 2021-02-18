@@ -60,9 +60,6 @@ exports.CreateEvent = functions.https.onCall(async (data, context) => {
   })
 })
 
-
-
-
 // exports.ValidateEventTime = functions.httpss.onCall(async (data, context) => {
 //   const event = utils.GetEntity("events",data.eventID);
 //   // 

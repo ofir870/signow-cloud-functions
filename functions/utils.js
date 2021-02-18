@@ -91,6 +91,22 @@ exports.GetEntity = (async (ref, id) => {
   }
 })
 
+exports.IsTimeValid = functions.https.onCall(async (data, context) => {
+  //  validate time if now is between 09:00 to 12:00 
+  //  if true "isTimeValid" true 
+  //  else "isTimeValid" false
+  let now = new Date()
+  var beginningTime = moment('9am', 'h');
+  var endTime = moment('12am', 'h');
+  let isTimeValid = true
+
+  if (!beginningTime.isBefore(now) || !endTime.isAfter(now)) {
+    isTimeValid = false
+
+  }
+
+  return isTimeValid
+})
 exports.CheckUserCodeInner = (uid) => {
 
   const userRef = db.collection('users').doc(uid);

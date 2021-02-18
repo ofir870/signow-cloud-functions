@@ -1,19 +1,18 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
-const messaging = firebase.messaging();
-const nodemailer = require("nodemailer");
 const config = require("./config")
 const utils = require('./utils');
 const userActions = require('./userActions');
-var http = require('http');
 var express = require('express');
-var twilio = require('twilio');
-const MessagingResponse = require('twilio').twiml.MessagingResponse
-var app = express();
 
-const accountSid = functions.config().twilio.accountsid;
-const authToken = functions.config().config.twilio.authToken;
+const MessagingResponse = require('twilio').twiml.MessagingResponse
+
+// const accountSid = functions.config().twilio.accountsid;
+// const authToken = functions.config().twilio.authtoken;
+const accountSid = config.twilio.accountsid;
+const authToken = config.twilio.authtoken;
+
 
 const client = require('twilio')(accountSid, authToken);
 
@@ -21,7 +20,7 @@ const client = require('twilio')(accountSid, authToken);
 exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
   // ------>> check if there is event to send a reminder to customer on phone
   // get all event that are in the next 60 minutes 
-  
+
   const entityRef = db.collection('events');
 
   const HOUR = 1000 * 60 * 60;

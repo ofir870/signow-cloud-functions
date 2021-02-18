@@ -249,17 +249,20 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
 })
 exports.GetAllInters = functions.https.onCall(async (data, context) => {
 
-    const intersRef = db.collection('users')
+    let arr = []
+    const intersRef = db.collection('inters-data')
 
-    const snapshot = await intersRef.where("role", "==", "inter").get();
+    const snapshot = await intersRef.get();
     if (snapshot.empty) {
         console.log('No matching documents.');
         return;
     }
 
     snapshot.forEach(doc => {
-        console.log(doc.id, '=>', doc.data());
+
+        arr.push(doc.data())
     });
+    return arr
 })
 
 

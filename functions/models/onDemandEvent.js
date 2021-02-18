@@ -8,5 +8,8 @@ exports.onDemandEvent =  {
     "start": Number,
     "status":String,
     "isAnswered":Boolean,
-    "requestTime":Number
+    "requestTime":Number,
+    "customerID":String
+
   }
+

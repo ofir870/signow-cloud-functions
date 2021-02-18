@@ -4,14 +4,20 @@ const utils = require('./utils')
 const onDemandEvent = require('./models/onDemandEvent')
 var FieldValue = require("firebase-admin").FieldValue;
 const db = admin.firestore();
+var moment = require('moment'); // require
+moment().format();
+
 // var FieldValue = require("firebase-admin").FieldValue;
 exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
+
   if (data.customerName)
     // validate data
     // go to customer doc with customer id from the data parameter and 
     cardToDb = Object.create(onDemandEvent.onDemandEvent)
   // make an objcet card and add it to the arr
   // cardToDb.customerID = data.customerID
+
+
   cardToDb.customerName = data.customerName
   cardToDb.title = data.title
   cardToDb.link = data.link
@@ -20,8 +26,9 @@ exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
   cardToDb.isAnswered = false
   cardToDb.interID = ""
   cardToDb.status = 'pending'
-
+  cardToDb.customerID = context.auth.uid
   cardToDb.requestTime = new Date().getTime()
+  
 
   return db.collection('on-demand-events').doc().set(JSON.parse(JSON.stringify(cardToDb)));
 
@@ -42,10 +49,9 @@ exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) =>
       isAnswered: true,
       interID: context.auth.uid,
       start: new Date().getTime(),
-      status:"online"
+      status: "online"
     }
- 
-    
+
     const res = doc.ref.update(docUpdated)
 
   })
@@ -78,14 +84,14 @@ exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
 
 
 exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
-  
+
   const eventsRef = db.collection('events').orderBy("start", "desc");
   let arr = []
   let cardToDb = ""
   const snapshot = await eventsRef.get();
-  
+
   snapshot.forEach(doc => {
-    
+
     cardToDb.id = doc.id
     cardToDb = Object.create(onDemandEvent.onDemandEvent)
     // make an objcet card and add it to the arr
@@ -98,18 +104,18 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
     cardToDb.start = doc.data().start
     cardToDb.requestTime = doc.data().requestTime
     cardToDb.link = doc.data().link
-    
+
     arr.push(cardToDb)
   });
   return arr;
-  
+
 })
 
 
 exports.UpdateODM = functions.https.onCall(async (data, context) => {
 
-let update = utils.UpdateAllCollection("ODM","test","test").then(answer=>{
-  return answer
-})
+  let update = utils.UpdateAllCollection("ODM", "test", "test").then(answer => {
+    return answer
+  })
 
 })
