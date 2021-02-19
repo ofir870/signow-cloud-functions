@@ -60,19 +60,40 @@ exports.CreateOrginization = functions.https.onCall((data, context) => {
     })
 })
 
+
+
+exports.CheckOrginizationAbility = functions.https.onCall(async (data, context) => {
+    let code;
+    const getCode = await utils.CheckUserCodeInner(context.auth.uid).then(c => {
+        code = c
+    })
+
+    let orgRef = db.collection('orginization')
+    let snapshot = await orgRef.where("code", "==", code).get()
+    if (snapshot.empty) {
+        console.log('No matching documents.');
+        return;
+    }
+    let answer;
+    snapshot.forEach(doc => {
+        answer = doc.data().ability
+    })
+
+    return answer
+})
 exports.GetAllOrginizationCustomers = functions.https.onCall(async (data, context) => {
     let arr = [];
-    const customersRef = db.collection('users')
+    const customersRef = db.collection('customers-data')
 
-    const snapshot = await customersRef.where("orginization", "==", data.orginizationId).get();
+    const snapshot = await customersRef.where("code", "==", data.code).get();
 
     if (snapshot.empty) {
         console.log('No matching user documents.');
         return;
     }
     snapshot.forEach(doc => {
-        let tempObj = doc.data()
-        arr.push(tempObj)
+
+        arr.push(doc.data())
     });
     return arr
 })
@@ -91,9 +112,7 @@ exports.GetAllOrginizations = functions.https.onCall(async (data, context) => {
     const snapshot = await orginizationRef.get()
     snapshot.forEach(doc => {
         // console.log(doc.id, '=>', doc.data());
-        let tempObj = doc.data()
-        tempObj.id = doc.id
-        arr.push(tempObj)
+        arr.push(doc.data())
 
     })
     return arr
@@ -103,20 +122,28 @@ exports.GetAllOrginizations = functions.https.onCall(async (data, context) => {
 
 exports.GetOrginizationNameByCode = functions.https.onCall(async (data, context) => {
 
-   const orgRef = db.collection("orginization");
-  const snapshot = await orgRef.where("code", "==", data.code).get();
-  let name;
+    const orgRef = db.collection("orginization");
+    const snapshot = await orgRef.where("code", "==", data.code).get();
+    let name;
 
-  if (snapshot.empty) {
-    console.log("the code in not valid");
-    return false
-  } else {
-    
-    snapshot.forEach(doc => {
-      name = doc.data().fullName
-    });
+    if (snapshot.empty) {
+        console.log("the code in not valid");
+        return false
+    } else {
 
-    return name
-  }
+        snapshot.forEach(doc => {
+            name = doc.data().fullName
+        });
+
+        return name
+    }
 
 })
+
+
+exports.GetOrginizationCreditByCode = functions.https.onCall(async (data, context) => {
+    // מקבל קוד
+    // משיג את הקרדיט מהקוד
+    return utils.GetOrginizationCreditByCode(data.code)
+})
+//

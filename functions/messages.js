@@ -1,103 +1,169 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const db = admin.firestore();
-const nodemailer = require("nodemailer");
+const config = require("./config")
+const utils = require('./utils');
+const userActions = require('./userActions');
+var express = require('express');
 
-let transporter = nodemailer.createTransport({
-  service: 'smtp.gmail.com',
-  auth: {
-    user: 'ofirofir870@gmail.com',
-    pass: '1FgfdS34_fdC45'
-  }
-});
-exports.SendEmail = functions.https.onCall((data, context) => {
+const MessagingResponse = require('twilio').twiml.MessagingResponse
 
-  // getting dest email by query string
-  const dest = `ofir@signow.org`;
+// const accountSid = functions.config().twilio.accountsid;
+// const authToken = functions.config().twilio.authtoken;
+const accountSid = config.twilio.accountsid;
+const authToken = config.twilio.authtoken;
 
-  const mailOptions = {
-    from: 'ofir <ofirofir870@gmail.com>', // Something like: Jane Doe <janedoe@gmail.com>
-    to: dest,
-    subject: 'I\'M A PICKLE!!!', // email subject
-    html: `<p style="font-size: 16px;">Pickle Riiiiiiiiiiiiiiiick!!</p>
-        <br />
-        <img src="https://images.prod.meredith.com/product/fc8754735c8a9b4aebb786278e7265a5/1538025388228/l/rick-and-morty-pickle-rick-sticker" />
-        ` // email content in HTML
-  }
 
-  // returning result
+const client = require('twilio')(accountSid, authToken);
 
-  transporter.sendMail(mailOptions).then(data => {
-    console.log(data)
-  })
-  return "go"
-})
-exports.SendGridEmail = (data)=>{
-  const sgMail = require('@sendgrid/mail')
-  sgMail.setApiKey('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')
+// exports.ScheduledEmailMessage = functions.https.onCall(async (data, context) => {
+exports.ScheduledEmailMessage = functions.pubsub.schedule('0 * * * *').onRun(async (context) => {
+  // ------>> check if there is event to send a reminder to customer on phone
+  // get all event that are in the next 60 minutes 
 
-  const recipients = [
-    {
-      mail: data.customerMail,
-      name: data.customerName,
-      secendName: data.interName,
-      meetingTime: data.meetingTime,
-      meetingLength: data.meetingLength,
-      meetingLink: data.meetingLink
-    },
-    {
-      mail: data.interMail,
-      name: data.interName,
-      secendName: data.customerName,
-      meetingTime: data.meetingTime,
-      meetingLength: data.meetingLength,
-      meetingLink: data.meetingLink
+  const entityRef = db.collection('events');
+
+  const HOUR = 1000 * 60 * 60;
+  let now = new Date().getTime()
+  let nowPlusHour = new Date().getTime() + HOUR
+  let count = 0
+  // console.log(new Date().getTime()+ 1000 * 60 * 60)
+  const snapshot = await entityRef.where("start", ">", now).where("start", "<", nowPlusHour).get();
+  snapshot.forEach(async doc => {
+
+    let phone = ""
+    // get phone by customer id
+    let get = await userActions.GetPhoneById(doc.data().customerID).then(d => {
+      phone = d
+    })
+    if (doc.data().occupied) {
+
+      // send a SMS message by customer id
+      count++
+      client.messages
+        .create({
+          body: `
+        :הודעת תזכורת לפגישה signow
+        
+        שלום  ${doc.data().customerName} נקבעה לך פגישה עם המתורגמנית  ${doc.data().interName}
+        בתאריך  :  ${doc.data().date}
+        לאורך של : ${doc.data().length} דקות.
+        
+        הלינק לפגישה הוא :   ${doc.data().link}
+        
+        `,
+          from: '+972523418514',
+          to: phone,
+
+        })
+        .then(message => console.log(message.accountSid));
     }
-  ]
+  })
 
-  recipients.forEach(element=>{
-    console.log(element)
-    const msg = {
-      to: element.mail, // Change to your recipient
+})
+
+
+exports.GetMessagingObject = functions.https.onCall((data, context) => {
+  messaging.getToken({ vapidKey: "BCODQ9BgVJPcnEMeu3BNWwIo0z6-yd8FI7BDT8AXzdKZ_Ckfq2-8Jk6wJhnQwPwLpScQC6GATMJkM4wcoWPomL4" });
+
+  // [START messaging_get_messaging_object]
+  const messaging = firebase.messaging();
+  // [END messaging_get_messaging_object]
+})
+exports.SendEmailVerifications = functions.https.onCall((data, context) => {
+
+  client.verify.services('VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+    .verifications
+    .create({ to: 'ofirofir870@gmail.com', channel: 'email' })
+    .then(verification => console.log(verification.sid));
+})
+
+exports.ReplySMS = functions.https.onRequest((req, res) => {
+  console.log("start function: ReplySMS ")
+
+  // Create TwiML response
+
+  const app = express();
+
+  const twiml = new MessagingResponse();
+
+  twiml.message('The Robots are coming! Head for the hills!');
+
+  res.writeHead(204, { 'Content-Type': 'text/xml' });
+  res.end(twiml.toString());
+  // http.createServer(app).listen(8080, () => {
+  //   console.log('Express server listening on port 1337');
+  // })
+});
+
+
+
+
+
+
+exports.SendGridEmail = (data) => {
+
+  const sgMail = require('@sendgrid/mail')
+
+  sgMail.setApiKey(config.sgMail.sgID)
+  let linkCustomerName = data.customerName.split(/(\s+)/);
+  let linkInterName = data.interName.split(/(\s+)/);
+  const msg = [
+    {
+      to: data.customerMail, // Change to your recipient
       from: 'ofir@signow.org', // Change to your verified sender
       subject: 'שלום, נקבעה לך שיחה חדשה במערכת signow',
-      text:  `שלום ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
+      text: `שלום ${data.customerName} נקבעה לך פגישה עם המתורגמנית  ${data.interName}
+        בתאריך  :  ${data.meetingTime}
+        לאורך של : ${data.meetingLength} דקות
+        
+        קישור לאפליקצייה :   'https://signplus-295808.web.app/#/'
+
+        הלינק לפגישה ישלח בהודעת אס אם אס 
+                ` },
+    {
+      to: data.interMail, // Change to your recipient
+      from: 'ofir@signow.org', // Change to your verified sender
+      subject: 'שלום, נקבעה לך שיחה חדשה במערכת signow',
+      text: `שלום ${data.interName} נקבעה לך פגישה עם המתורגמנית  ${data.customerName}
       בתאריך  :  ${data.meetingTime}
       לאורך של : ${data.meetingLength} דקות
-      
-      הלינק הפגישה הוא :   ${data.meetingLink}
-      ` 
+        
+       קישור לאפליקצייה :   'https://signplus-295808.web.app/#/'
+        
+        הלינק לפגישה ישלח בהודעת אס אם אס 
+        `
     }
-    
-    sgMail.send(msg)
+  ]
+  sgMail.send(msg)
     .then(() => {
       console.log('Email sent')
+    }).catch(err => {
+      config.log(err)
     })
-  })
-
-  }
+}
 
 // get the event by
 // call this function when the value isOccurpied in event change 
 // if true: send message to both client and inter about the meeting
 // if false: send a message about meeting cancellation  
 exports.SendSMSOnClosedEvent = (data => {
-
+  let linkCustomerName = data.customerName.split(/(\s+)/);
+  let linkInterName = data.interName.split(/(\s+)/);
   const recipients = [
     {
       phone: data.customerPhone,
       name: data.customerName,
       secendName: data.interName,
+      link: `${data.eventLink}&name=${linkCustomerName[0]}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9`
     },
     {
       phone: data.interPhone,
       name: data.interName,
       secendName: data.customerName,
+      link: `${data.eventLink}&name=${linkInterName[0]}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6`
     }
   ]
-  const accountSid = 'AC2a9db3c7279992b89d19f4f3e7a19933';
-  const authToken = '454ed73a5b64ce377e1c5cde6fd821cd';
-  const client = require('twilio')(accountSid, authToken);
 
   if (!data.interPhone && !data.customerPhone) {
 
@@ -108,17 +174,22 @@ exports.SendSMSOnClosedEvent = (data => {
   let answer = ''
   recipients.forEach(element => {
     const obj = {
-      body: `שלום ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
+
+      body: `
+      
+      :נקבעה לך שיחה חדשה במערכת signow
+
+      שלום  ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
        בתאריך  :  ${data.eventTime}
        לאורך של : ${data.eventLength} דקות
        
-       הלינק הפגישה הוא :   ${data.eventLink}
+       הלינק הפגישה הוא :   ${element.link}
        
        `,
       from: '+972523418514',
       to: `${element.phone}`
     }
- 
+
     client.messages
       .create(obj)
 
