@@ -53,10 +53,10 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
 
 
 exports.CreateCustomerTest = functions.https.onCall((data, context) => {
-
+    
     let phone = "+972" + parseInt(data.phone)
 
-    if (data.communicationMethod == "email") {
+    if (data['email'] !== undefined){
 
         admin.auth().createUser(
             {
@@ -248,7 +248,7 @@ exports.GetCustomerNameById = functions.https.onCall(async (data, context) => {
 exports.GetAllCustomers = functions.https.onCall(async (data, context) => {
     let arr = []
     const customersRef = db.collection('customers-data')
-
+  
     const snapshot = await customersRef.get();
     if (snapshot.empty) {
         console.log('No matching documents.');
@@ -287,7 +287,8 @@ exports.EmailValidation = functions.https.onCall(async (data, context) => {
     }
 })
 
-exports.UpdateCustomer = functions.https.onCall((data, context) => {
+exports.UpdateCustomerOneVal = functions.https.onCall((data, context) => {
+
     let update = utils.UpdateEntity(data.customerID, "customers-data", data.key, data.val).then(answer => {
         return answer
     })

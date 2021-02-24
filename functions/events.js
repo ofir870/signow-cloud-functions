@@ -5,6 +5,87 @@ const NotOccupiedCard = require('./models/notOccupiedEventCard')
 const Card = require('./models/eventCard')
 const db = admin.firestore();
 // var FieldValue = require("firebase-admin").FieldValue;
+
+exports.CreateEventTest = functions.https.onCall(async (data, context) => {
+
+  // validate data
+  // go to customer doc with customer id from the data parameter and 
+  // check if orginization as credit to active the event 
+  let event = {}
+
+  event = {
+    
+    'id': data.id,
+    'customerID': context.auth.uid,
+    'interID': data.interID,
+    'state': data.state,
+    'answer': data.answer,
+    'title': data.title,
+    'desc': data.description,
+    // 'loc': location,
+    'link': data.link,
+    'emails': data.email,
+    'customerName': data.customerName,
+    'interName': data.interName,
+    'isReminded': data.isReminded,
+    // 'should_notify': shouldNotifyAttendees,
+    'gEventId': null,
+    'start': data.start,
+    'end': data.end,
+    'length': data.length,
+    'date': data.date,
+    'occupied': data.occupied,
+    
+  };
+
+
+  // var start =  8 * 60 + 0;
+  // var end   = 17 * 60 + 0;
+  // get customer doc
+  // if(event.start>)
+  const userData = await utils.GetEntity("users", event.customerID);
+  const customerData = await utils.GetEntity("customers-data", event.customerID);
+  event.customerName = customerData.fullName
+  event.requestTime = new Date().getTime()
+
+  // get orginization credit for validation
+
+  let credit = await utils.GetOrginizationCreditByCode(userData.code);
+  event.code = userData.code
+  // long meeting check and decrease credit
+  if (event.length == 60) {
+    if (credit >= 1) {
+      await utils.DecreaseOrginizationCreditByHour(userData.code, credit);
+    } else {
+
+      return false
+    }
+  }
+  // short meeting check and decrease credit
+  if (event.length == 30) {
+
+    if (credit >= 0.5) {
+      await utils.DecreaseOrginizationCreditByHalfHour(userData.code, credit);
+
+    }
+    else {
+
+      return false
+    }
+  }
+  let batch = db.batch();
+
+  let setEvent = db.collection('events').doc(data.id);
+
+  batch.set(setEvent, JSON.parse(JSON.stringify(event)));
+
+  return batch.commit().then(function () {
+    return true;
+  }).catch(err => {
+    return err
+  })
+})
+
 exports.CreateEvent = functions.https.onCall(async (data, context) => {
 
   // validate data
@@ -81,7 +162,7 @@ exports.DeletePastEvents = functions.https.onCall(async (data, context) => {
     return;
   }
   snapshot.forEach(async doc => {
-
+   
     // create event in oldEvents
     let setEvent = await db.collection('events-old').doc(doc.id).set(doc.data())
     // delete event from events
@@ -220,7 +301,7 @@ exports.GetAllNotOccupiedEvents = functions.https.onCall(async (data, context) =
   return arr
 })
 
-exports.GetHistoriesEventsByUserId = functions.https.onCall(async (data, context) => {
+exports.GetHistoryEventsByUserId = functions.https.onCall(async (data, context) => {
 
   const eventsRef = await db.collection('events-old')
   let date = new Date()
@@ -255,6 +336,137 @@ exports.GetHistoriesEventsByUserId = functions.https.onCall(async (data, context
   })
   return arr
 })
+
+exports.GetHistoryEvents = functions.https.onCall(async (data, context) => {
+
+  const eventsRef = await db.collection('events-old')
+  let date = new Date()
+  date.getTime()
+
+  const snapshot = await eventsRef.get();
+  let arr = []
+  if (snapshot.empty) {
+    console.log('No matching documents.');
+    return;
+  }
+
+  snapshot.forEach(doc => {
+
+      let cardToDb = ''
+      cardToDb = Object.create(Card.EventCard)
+      // make an objcet card and add it to the arr
+      cardToDb.customerName = doc.data().customerName
+      cardToDb.interName = doc.data().interName
+      cardToDb.code = doc.data().code
+      cardToDb.occupied = doc.data().occupied
+      cardToDb.start = doc.data().start
+      cardToDb.length = doc.data().length
+      cardToDb.date = doc.data().date
+      cardToDb.id = doc.data().id
+      cardToDb.link = doc.data().link
+
+      arr.push(cardToDb)
+    
+
+  })
+  return arr
+})
+
+
+
+exports.CheckIfEventNowAdmin = functions.https.onCall(async (data, context) => {
+
+  let arr = []
+  const eventsRef = await db.collection('events')
+  const snapshot = await eventsRef.get();
+  const hour = 1000 * 60 * 60;
+
+
+  let nowPlusHour = new Date().getTime() + hour
+  let nowMinusHour = new Date().getTime() - hour
+
+
+  snapshot.forEach(async doc => {
+
+
+      if (doc.data().start > nowMinusHour && doc.data().start < nowPlusHour) {
+        
+      let cardToDb = ''
+      cardToDb = Object.create(Card.EventCard)
+      // make an objcet card and add it to the arr
+      cardToDb.customerName = doc.data().customerName
+      cardToDb.interName = doc.data().interName
+      cardToDb.code = doc.data().code
+      cardToDb.occupied = doc.data().occupied
+      cardToDb.start = doc.data().start
+      cardToDb.length = doc.data().length
+      cardToDb.date = doc.data().date
+      cardToDb.id = doc.data().id
+      cardToDb.link = doc.data().link
+
+      arr.push(cardToDb)
+      }
+    })
+})
+
+
+
+exports.GetAllEventsWithHistory = functions.https.onCall(async (data, context) => {
+
+  const eventsOldRef = await db.collection('events-old')
+  const eventsRef = await db.collection('events')
+  let date = new Date()
+  date.getTime()
+
+  const snapshotOld = await eventsOldRef.get();
+  const snapshot = await eventsRef.get();
+  let arr = []
+  if (snapshot.empty&&snapshotOld.empty) {
+    console.log('No matching documents.');
+    return;
+  }
+
+  snapshot.forEach(doc => {
+
+      let cardToDb = ''
+      cardToDb = Object.create(Card.EventCard)
+      // make an objcet card and add it to the arr
+      cardToDb.customerName = doc.data().customerName
+      cardToDb.interName = doc.data().interName
+      cardToDb.code = doc.data().code
+      cardToDb.occupied = doc.data().occupied
+      cardToDb.start = doc.data().start
+      cardToDb.length = doc.data().length
+      cardToDb.date = doc.data().date
+      cardToDb.id = doc.data().id
+      cardToDb.link = doc.data().link
+
+      arr.push(cardToDb)
+    
+
+  })
+  snapshotOld.forEach(doc => {
+
+      let cardToDb = ''
+      cardToDb = Object.create(Card.EventCard)
+      // make an objcet card and add it to the arr
+      cardToDb.customerName = doc.data().customerName
+      cardToDb.interName = doc.data().interName
+      cardToDb.code = doc.data().code
+      cardToDb.occupied = doc.data().occupied
+      cardToDb.start = doc.data().start
+      cardToDb.length = doc.data().length
+      cardToDb.date = doc.data().date
+      cardToDb.id = doc.data().id
+      cardToDb.link = doc.data().link
+
+      arr.push(cardToDb)
+    
+
+  })
+  return arr
+})
+
 
 exports.GetAllEventsOccupiedByCustomerId = functions.https.onCall(async (data, context) => {
 

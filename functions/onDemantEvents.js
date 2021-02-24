@@ -9,28 +9,39 @@ moment().format();
 
 // var FieldValue = require("firebase-admin").FieldValue;
 exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
-
-  if (data.customerName)
+ 
     // validate data
     // go to customer doc with customer id from the data parameter and 
-    cardToDb = Object.create(onDemandEvent.onDemandEvent)
+    let event = {}
+
+    event = {
+      'answer': data.answer,
+      'id': data.id,
+      'customerID': data.customerID,
+      'interID': data.interID,
+      'state': data.state,
+      'title': data.title,
+      'desc': data.description,
+      // 'loc': location,
+      'link': data.link,
+      'customerName': data.customerName,
+      'interName': data.interName,
+      // 'should_notify': shouldNotifyAttendees,
+      'start': data.start,
+      'end': data.end,
+      'length': data.length,
+      'date': data.date,
+      'occupied': data.occupied,
+      
+    };
   // make an objcet card and add it to the arr
   // cardToDb.customerID = data.customerID
+  const userData = await utils.GetEntity("users", event.customerID);
+  const customerData = await utils.GetEntity("customers-data", event.customerID);
+  event.customerName = customerData.fullName
+  event.code = userData.code
 
-
-  cardToDb.customerName = data.customerName
-  cardToDb.title = data.title
-  cardToDb.link = data.link
-  cardToDb.interName = "מותרגמנית"
-  cardToDb.start = 0
-  cardToDb.isAnswered = false
-  cardToDb.interID = ""
-  cardToDb.status = 'pending'
-  cardToDb.customerID = context.auth.uid
-  cardToDb.requestTime = new Date().getTime()
-  
-
-  return db.collection('on-demand-events').doc().set(JSON.parse(JSON.stringify(cardToDb)));
+  return db.collection('on-demand-events').doc().set(JSON.parse(JSON.stringify(event)));
 
 })
 
@@ -49,7 +60,7 @@ exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) =>
       isAnswered: true,
       interID: context.auth.uid,
       start: new Date().getTime(),
-      status: "online"
+      state: "online"
     }
 
     const res = doc.ref.update(docUpdated)
@@ -81,8 +92,6 @@ exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
   }
 })
 
-
-
 exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
 
   const eventsRef = db.collection('events').orderBy("start", "desc");
@@ -97,9 +106,10 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
     // make an objcet card and add it to the arr
     cardToDb.customerName = doc.data().customerName
     cardToDb.interName = doc.data().interName
+    cardToDb.customerID = doc.data().customerID
     cardToDb.interID = doc.data().interID
     cardToDb.title = doc.data().title
-    cardToDb.status = doc.data().status
+    cardToDb.state = doc.data().state
     cardToDb.isAnswered = doc.data().isAnswered
     cardToDb.start = doc.data().start
     cardToDb.requestTime = doc.data().requestTime

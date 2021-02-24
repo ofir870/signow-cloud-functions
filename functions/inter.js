@@ -47,11 +47,9 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 
 exports.CreateInterTest = functions.https.onCall((data, context) => {
 
-
     let phone = "+972" + parseInt(data.phone)
 
-
-    if (data.communicationMethod == "email") {
+    if (data['email'] !== undefined){
 
         admin.auth().createUser(
             {

@@ -13,7 +13,7 @@ exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
 exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
 exports.CreateCustomerTest = customer.CreateCustomerTest
-exports.UpdateCustomer = customer.UpdateCustomer
+exports.UpdateCustomerOneVal = customer.UpdateCustomerOneVal
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
 
 
@@ -33,6 +33,11 @@ const eventsOD = require('./onDemantEvents')
 exports.CreateOnDemandEvent = eventsOD.CreateOnDemandEvent
 exports.UpdateODM = eventsOD.UpdateODM
 
+
+
+const notification = require('./notificationService')
+exports.notification = notification.SaveToken
+
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
 exports.CreateEventTest = events.CreateEventTest
@@ -47,7 +52,12 @@ exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
 exports.DeletePastEvents = events.DeletePastEvents
 exports.UpdateEventTime = events.UpdateEventTime
 exports.GetEventById = events.GetEventById
-exports.GetHistoriesEventsByUserId = events.GetHistoriesEventsByUserId
+exports.GetHistoryEventsByUserId = events.GetHistoryEventsByUserId
+exports.GetHistoryEvents = events.GetHistoryEvents
+exports.GetAllEventsWithHistories = events.GetAllEventsWithHistory
+exports.CheckIfEventNowAdmin = events.CheckIfEventNowAdmin
+
+
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
