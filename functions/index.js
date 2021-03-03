@@ -9,16 +9,12 @@ const customer = require('./customer')
 exports.CreateCustomer = customer.CreateCustomer
 exports.CreateCustomerRating = customer.CreateCustomerRating
 exports.GetAllCustomers = customer.GetAllCustomers
-exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
 exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
 exports.CreateCustomerTest = customer.CreateCustomerTest
 exports.UpdateCustomerOneVal = customer.UpdateCustomerOneVal
+// exports.EmailValidation = customer.EmailValidation
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
-
-
-// var data = require('./path/to/testData.json');
-// myFunction(data);
 
 const inter = require('./inter')
 exports.CreateInter = inter.CreateInter
@@ -26,17 +22,36 @@ exports.GetAllInters = inter.GetAllInters
 exports.GetInterNameById = inter.GetInterNameById
 exports.InterBookEvent = inter.InterBookEvent
 exports.CreateInterTest = inter.CreateInterTest
+exports.UpdateInterOneVal = customer.UpdateInterOneVal
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
-const eventsOD = require('./onDemantEvents')
-exports.CreateOnDemandEvent = eventsOD.CreateOnDemandEvent
-exports.UpdateODM = eventsOD.UpdateODM
+
+const orginization = require('./orginization')
+exports.CreateOrginization = orginization.CreateOrginization
+exports.GetAllOrginizationCustomers = orginization.GetAllOrginizationCustomers
+exports.GetAllOrginizations = orginization.GetAllOrginizations
+exports.UpdateOrginization = orginization.UpdateOrginization
+exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
+exports.GetOrginizationCreditByCode = orginization.GetOrginizationCreditByCode
+exports.CheckOrginizationAbility = orginization.CheckOrginizationAbility
+
+const triggers = require('./triggers')
+exports.OnDelete = triggers.OnDelete
+exports.OnUserSignUp = triggers.OnUserSignUp
+exports.OnCreateEvent = triggers.OnCreateEvent
+exports.OnDeleteODMEvent = triggers.OnDeleteODMEvent
 
 
+const onDemand = require('./onDemandEvents')
+exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
+exports.InterBookEventOnDemand = onDemand.InterBookEventOnDemand
+exports.IsInterOnDemand = onDemand.IsInterOnDemand
+exports.GetAllEventsOnDemand = onDemand.GetAllEventsOnDemand
+exports.DeleteODEventByCustomerId = onDemand.DeleteODEventByCustomerId
+exports.FinishODM = onDemand.FinishODM
 
-const notification = require('./notificationService')
-exports.notification = notification.SaveToken
+
 
 const events = require('./events')
 exports.CreateEvent = events.CreateEvent
@@ -56,26 +71,6 @@ exports.GetHistoryEventsByUserId = events.GetHistoryEventsByUserId
 exports.GetHistoryEvents = events.GetHistoryEvents
 exports.GetAllEventsWithHistories = events.GetAllEventsWithHistory
 exports.CheckIfEventNowAdmin = events.CheckIfEventNowAdmin
-
-
-
-const orginization = require('./orginization')
-exports.CreateOrginization = orginization.CreateOrginization
-exports.GetAllOrginizationCustomers = orginization.GetAllOrginizationCustomers
-exports.GetAllOrginizations = orginization.GetAllOrginizations
-exports.UpdateOrginization = orginization.UpdateOrginization
-exports.GetOrginizations = orginization.GetOrginizations
-exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
-exports.GetOrginizationCreditByCode = orginization.GetOrginizationCreditByCode
-exports.CheckOrginizationAbility = orginization.CheckOrginizationAbility
-
-const triggers = require('./triggers')
-exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
-exports.ChangeRoleInter = triggers.ChangeRoleInter
-exports.OnDelete = triggers.OnDelete
-exports.OnUserSignUp = triggers.OnUserSignUp
-exports.onUpdateEvent = triggers.onUpdateEvent
-exports.OnCreateEvent = triggers.OnCreateEvent
 
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
@@ -100,16 +95,14 @@ exports.ScheduledEmailMessage = messages.ScheduledEmailMessage
 exports.SendEmailVerifications = messages.SendEmailVerifications
 exports.ReplySMS = messages.ReplySMS
 
+const notification = require('./notificationService')
+exports.notification = notification.SaveToken
+
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
 exports.GetEntityValue = utils.GetEntityValue
 exports.IsTimeValid = utils.IsTimeValid
 
-const onDemand = require('./onDemantEvents')
-exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
-exports.InterBookEventOnDemand = onDemand.InterBookEventOnDemand
-exports.IsInterOnDemand = onDemand.IsInterOnDemand
-exports.GetAllEventsOnDemand = onDemand.GetAllEventsOnDemand
 
 /* VideoChat Serving app */
 //import dependencies

@@ -381,13 +381,11 @@ exports.CheckIfEventNowAdmin = functions.https.onCall(async (data, context) => {
   const snapshot = await eventsRef.get();
   const hour = 1000 * 60 * 60;
 
-
   let nowPlusHour = new Date().getTime() + hour
   let nowMinusHour = new Date().getTime() - hour
 
 
   snapshot.forEach(async doc => {
-
 
       if (doc.data().start > nowMinusHour && doc.data().start < nowPlusHour) {
         

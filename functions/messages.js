@@ -174,7 +174,6 @@ exports.SendSMSOnClosedEvent = (data => {
   let answer = ''
   recipients.forEach(element => {
     const obj = {
-
       body: `
       
       :נקבעה לך שיחה חדשה במערכת signow
@@ -182,6 +181,54 @@ exports.SendSMSOnClosedEvent = (data => {
       שלום  ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
        בתאריך  :  ${data.eventTime}
        לאורך של : ${data.eventLength} דקות
+       
+       הלינק הפגישה הוא :   ${element.link}
+       
+       `,
+      from: '+972523418514',
+      to: `${element.phone}`
+    }
+
+    client.messages
+      .create(obj)
+
+      .then(message => {
+
+        answer = message.status
+        console.log(message.accountSid)
+      })
+      .done();
+  });
+  return ("sent message function end" + answer)
+})
+
+exports.SendSMSOnRequestODMEvent = (data => {
+  let linkInterName = data.name.split(/(\s+)/);
+  const recipients = [
+    {
+      phone: data.phone,
+      name: data.name,
+      secendName: data.customerName,
+      link: `${data.link}&name=${linkInterName[0]}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6`
+    }
+  ]
+
+  if (!data.phone) {
+    return console.log("user phone is missing");
+
+  }
+
+  let answer = ''
+  recipients.forEach(element => {
+    const obj = {
+
+      body: `
+      
+      :נקבעה בקשה חדשה במערכת signow
+
+      שלום  ${element.name} יש לך הזמנות לתת שירות ללקוח בשם  ${element.secendName}
+       
+      לכניסה מיידית למתן שירות לחץ על הלינק
        
        הלינק הפגישה הוא :   ${element.link}
        

@@ -43,8 +43,6 @@ exports.CreateInter = functions.https.onCall((data, context) => {
 })
 
 
-
-
 exports.CreateInterTest = functions.https.onCall((data, context) => {
 
     let phone = "+972" + parseInt(data.phone)
@@ -124,7 +122,6 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
 
                 }
 
-
                 const inter = {
                     "interpreterID": userRecord.uid,
                     "desc": data.desc,
@@ -166,6 +163,14 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
                 return err
             })
     }
+})
+
+exports.UpdateInterOneVal = functions.https.onCall((data, context) => {
+
+    let update = utils.UpdateEntity(data.interID, "inters-data", data.key, data.val).then(answer => {
+        return answer
+    })
+
 })
 
 exports.InterBookEvent = functions.https.onCall(async (data, context) => {

@@ -99,7 +99,7 @@ exports.GetAllOrginizationCustomers = functions.https.onCall(async (data, contex
 })
 exports.UpdateOrginization = functions.https.onCall(async (data, context) => {
 
-    const orginizationRef = db.collection('orginization').doc(data.uid);
+    const orginizationRef = db.collection('orginization').doc(data.orginizationID);
 
     const res = await orginizationRef.update(data.orginization)
 

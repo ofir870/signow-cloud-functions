@@ -9,12 +9,15 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
     if (!data.customerID) {
         return "Missing: customerID"
     }
+
     if (!data.cardID) {
         return "Missing: cardID"
     }
+
     if (!data.code) {
         return "Missing: code"
     }
+
     const customer = {
         "customerID": data.customerID,
         "cardID": data.cardID,
@@ -53,10 +56,10 @@ exports.CreateCustomer = functions.https.onCall((data, context) => {
 
 
 exports.CreateCustomerTest = functions.https.onCall((data, context) => {
-    
+
     let phone = "+972" + parseInt(data.phone)
 
-    if (data['email'] !== undefined){
+    if (data['email'] !== undefined) {
 
         admin.auth().createUser(
             {
@@ -248,7 +251,7 @@ exports.GetCustomerNameById = functions.https.onCall(async (data, context) => {
 exports.GetAllCustomers = functions.https.onCall(async (data, context) => {
     let arr = []
     const customersRef = db.collection('customers-data')
-  
+
     const snapshot = await customersRef.get();
     if (snapshot.empty) {
         console.log('No matching documents.');
@@ -258,34 +261,34 @@ exports.GetAllCustomers = functions.https.onCall(async (data, context) => {
     snapshot.forEach(doc => {
         arr.push(doc.data())
     });
-    
+
     return arr
 
 })
 
 
-exports.EmailValidation = functions.https.onCall(async (data, context) => {
+// exports.EmailValidation = functions.https.onCall(async (data, context) => {
 
-    const customersRef = db.collection('users')
+//     const customersRef = db.collection('users')
 
-    const snapshot = await customersRef.where("email", "==", data.email).get();
-    console.log(snapshot.docs)
-    if (snapshot.empty) {
-        console.log('No matching documents => creating new user ');
-    }
-    if (!snapshot.empty) {
+//     const snapshot = await customersRef.where("email", "==", data.email).get();
+//     console.log(snapshot.docs)
+//     if (snapshot.empty) {
+//         console.log('No matching documents => creating new user ');
+//     }
+//     if (!snapshot.empty) {
 
-        if (snapshot.docs.disabled) {
-            // update
+//         if (snapshot.docs.disabled) {
+//             // update
 
-            return "this is a known email with a non-active account "
-        }
-        else {
+//             return "this is a known email with a non-active account "
+//         }
+//         else {
 
-            return "this email is taken with an active account"
-        }
-    }
-})
+//             return "this email is taken with an active account"
+//         }
+//     }
+// })
 
 exports.UpdateCustomerOneVal = functions.https.onCall((data, context) => {
 
@@ -321,16 +324,16 @@ exports.CreateCustomerRating = functions.https.onCall((data, context) => {
 
 })
 
-exports.CheckCustomerCredit = functions.https.onCall(async (data, context) => {
-    let credit = await db.collection("orginization").doc(data.orginizationID).get()
-    db
-    creditLeft = credit.data().hours - bank - credit.data().credit - used
+// exports.CheckCustomerCredit = functions.https.onCall(async (data, context) => {
+//     let credit = await db.collection("orginization").doc(data.orginizationID).get()
+//     db
+//     creditLeft = credit.data().hours - bank - credit.data().credit - used
 
-    // get all user and get a count of all credits in this month
+//     // get all user and get a count of all credits in this month
 
 
-    if (creditLeft <= 0) {
-        return "you dont have more credit"
-    }
-    return `you have ${creditLeft} credit left`
-})
+//     if (creditLeft <= 0) {
+//         return "you dont have more credit"
+//     }
+//     return `you have ${creditLeft} credit left`
+// })
