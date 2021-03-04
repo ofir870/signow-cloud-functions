@@ -112,15 +112,25 @@ exports.OnDeleteODMEvent = functions.firestore.document('on-demand-events/{id}')
         });
     })
 
+exports.OnUpdateODMEvent = functions.firestore.document('on-demand-events/{id}')
+    .onUpdate(async (snap, context) => {
+
+            if(snap.data().state == "done"){
+                let setEvent = await db.collection('events-old').doc(snap.id).set(snap.data())
+                // delete event from events
+                let deleteEvent = await db.collection('events').doc(snap.id).delete()
+            }
+    })
+
 exports.OnCreateEvent = functions.firestore.document('on-demand-events/{id}')
     .onCreate(async (snap, context) => {
 
-        utils.UpdateEntity(snap.id, 'on-demand-events', 'link', `https://signowvideo.web.app/?eventID=${snap.id}`).then(doc => {
+        utils.UpdateEntity(snap.id, 'on-demand-events', 'link', `https://signowvideo.web.app/?roomName=${snap.id}`).then(doc => {
             console.log(doc)
         })
         // update id inside the collection
         const eventRef = await db.collection('on-demand-events').doc(snap.id)
-        const res = eventRef.update({ "id": snap.id });
+        const res = eventRef.update({ "eventID": snap.id });
 
         // get inter that sign in to the sms service
         const intersRef = db.collection('inters-odm')
@@ -129,7 +139,6 @@ exports.OnCreateEvent = functions.firestore.document('on-demand-events/{id}')
             console.log('No matching documents.');
             return;
         }
-        
         // check if the event is still pending if yes send messages
         if (snap.data().state == "pending") {
             // send SMS to all inters in this forEach
@@ -143,7 +152,7 @@ exports.OnCreateEvent = functions.firestore.document('on-demand-events/{id}')
                     let recipient = {
                         name: doc.data().fullName,
                         phone: doc.data().phone,
-                        link: `https://signplus-295808--mickyofir3-sn0l9gxj.web.app/#competition/?eventID=${snap.id}&interName=${doc.data().fullName}&interID=${doc.id}`,
+                        link: `https://signplus-295808.web.app/#competition/?roomName=${snap.id}&interName=${doc.data().fullName}&interID=${doc.id}`,
                         customerName: snap.data().customerName
                     }
 

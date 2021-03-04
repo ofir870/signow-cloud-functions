@@ -178,7 +178,7 @@ exports.SendSMSOnClosedEvent = (data => {
       
       :נקבעה לך שיחה חדשה במערכת signow
 
-      שלום  ${element.name} נקבעה לך פגישה עם המתורגמנית  ${element.secendName}
+      שלום  ${element.name} נקבעה לך פגישה עם   ${element.secendName}
        בתאריך  :  ${data.eventTime}
        לאורך של : ${data.eventLength} דקות
        

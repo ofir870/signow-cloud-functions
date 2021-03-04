@@ -173,6 +173,53 @@ exports.UpdateInterOneVal = functions.https.onCall((data, context) => {
 
 })
 
+// will get interID and go to his working hours object
+exports.InsertHoursOfWork = functions.https.onCall((data, context) => {
+    let availabilityTime = {
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Monday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+        "Sunday":[ {
+                'start':'3/4/2021 11:00:00',
+                'end': '3/4/2021 12:00:00'},
+            {'start':'3/4/2021 14:00:00',
+                'end': '3/4/2021 16:00:00'} ],
+    }
+// save in obj the new hours
+var d = '02/28/2014 08:00:00';
+console.log(moment(d).valueOf());
+console.log(moment(d).format('HH:mm:ss'));
+
+})
+
+
 exports.InterBookEvent = functions.https.onCall(async (data, context) => {
     try {
         const eventsRef = await db.collection('events').doc(data.eventID)

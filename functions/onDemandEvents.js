@@ -8,6 +8,35 @@ const db = admin.firestore();
 var moment = require('moment'); // require
 moment().format();
 
+// exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) => {
+//   // TODO update the fuction need to return succsess or feiled after check if event state is online
+
+//   let docUpdated = {}
+//   const eventRef = db.collection('on-demand-events')
+//   const snapshot = await eventRef.where("link", "==", data.link).get().then(async (query) => {
+//   //  if(query.)
+//     const doc = query.docs[0]
+
+//     const interData = await utils.GetEntity("inters-data", context.auth.uid);
+
+//     docUpdated = {
+//       interName: interData.fullName,
+//       isAnswered: true,
+//       interID: context.auth.uid,
+//       start: new Date().getTime(),
+//       state: "online"
+//     }
+//     const res = doc.ref.update(docUpdated)
+//   })
+
+//   // get Name
+//   // TODO send notification
+//   // get the link
+//   // save it in docUpdated.link
+
+
+//   return docUpdated.interName
+// })
 exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
   // validate data
   let event = {}
@@ -23,7 +52,7 @@ exports.CreateOnDemandEvent = functions.https.onCall(async (data, context) => {
     'state': 'pending',
     "requestTime": new Date().getTime()
   };
-
+  
   // go to customer doc with customer id from the data parameter and 
   const userData = await utils.GetEntity("users", event.customerID);
   const customerData = await utils.GetEntity("customers-data", event.customerID);
@@ -53,17 +82,19 @@ exports.TryCatchMeeting = (async (data, context) => {
     const res = await db.collection('on-demand-events').doc(doc.id).update({ 'state': "online" });
   });
   return { "result": "success" }
-
-
 })
-
 exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) => {
   // TODO update the fuction need to return succsess or feiled after check if event state is online
 
+  console.log(data.eventID + " eventID")
+  console.log(data.interID + " interID")
 
   let docUpdated = {}
+
   const eventRef = db.collection('on-demand-events').doc(data.eventID);
+
   const doc = await eventRef.get();
+  
   if (!doc.exists) {
     console.log('No such document!');
   } else {
@@ -95,27 +126,28 @@ exports.InterBookEventOnDemand = functions.https.onCall(async (data, context) =>
       return false
     }
 
+    return docUpdated.interName
   }
-
 })
-
 // change state to 'ended' and update end with new getTime will get event id
 exports.FinishODM = functions.https.onCall(async (data, context) => {
   const eventsRef = await db.collection("on-demand-events").doc(data.eventID)
   const doc = await eventsRef.get();
-  if(!doc.exists){
+  if (!doc.exists) {
     console.log('No such document! wrong eventID');
 
-  }else{
+  } else {
     const res = await db.collection('on-demand-events').doc(doc.id).update({
-       'state': "done" ,
-       'end': new Date().getTime() 
-  });
-  console.log('update doc!')
+      'state': "done",
+      'end': new Date().getTime()
+
+
+    });
+    console.log('update doc!')
+    
   }
 })
 exports.IsInterOnDemand = functions.https.onCall(async (data, context) => {
-
 
   const eventsRef = await db.collection("inters-data").doc(data.interID)
   const doc = await eventsRef.get();
@@ -164,18 +196,8 @@ exports.GetAllEventsOnDemand = functions.https.onCall(async (data, context) => {
 
 exports.DeleteODEventByCustomerId = functions.https.onCall(async (data, context) => {
 
-  const eventsRef = await db.collection('on-demand-events');
-
-  const snapshot = await eventsRef.where("customerID", "==", context.auth.uid).where('state', '==', 'pending').get();
-
-  if (snapshot.empty) {
-    console.log('No matching documents.');
-    return;
-  }
-  snapshot.forEach(async doc => {
-
-    const res = await db.collection('on-demand-events').doc(doc.id).delete();
-  });
+  const res = await db.collection('on-demand-events').doc(data.eventID).delete();
+  
   return "Events deleted"
 })
 
