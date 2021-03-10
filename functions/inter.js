@@ -3,57 +3,15 @@ const admin = require('firebase-admin');
 const utils = require('./utils')
 const db = admin.firestore();
 const messages = require("./messages")
+var moment = require('moment'); // require
+moment().format();
 exports.CreateInter = functions.https.onCall((data, context) => {
-    const inter = {
-        "interpreterID": data.interID,
-        "desc": data.desc,
-        "avarageRating": null,
-        "hoursOfWork": [],
-        "cardID": data.cardID,
-        "phone": data.phone,
-        "address": data.address,
-        'identityNumber': data.identityNumber,
-        'password': data.password,
-        "fullName": data.fullName,
-        "birthDate": data.birthDate,
-        "disabled": false,
-        "role": "inter"
-
-    }
-    inter.phone = "+972" + parseInt(inter.phone)
-
-    let batch = db.batch();
-    let setInter = db.collection('inters-data').doc(data.interID);
-
-    batch.set(setInter, JSON.parse(JSON.stringify(inter)));
-
-    // change role of user to Interpreter
-    let changeRole = db.collection('users').doc(data.interID);
-
-    batch.set(changeRole, { "role": "inter" }, { "merge": true });
-
-    // Commit the batch
-    return batch.commit().then(function () {
-
-        return true;
-    }).catch(err => {
-        return err
-    })
-
-})
-
-
-
-
-exports.CreateInterTest = functions.https.onCall((data, context) => {
-
-
+    let req = {}
+    let answer = {}
     let phone = "+972" + parseInt(data.phone)
-
-
-    if (data.communicationMethod == "email") {
-
-        admin.auth().createUser(
+    console.log(data['email'] !== undefined)
+    if (data['email'] !== undefined) {
+        req = admin.auth().createUser(
             {
                 email: data.email,
                 phoneNumber: phone,
@@ -63,6 +21,7 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
             })
 
             .then((userRecord) => {
+
                 // See the UserRecord reference doc for the contents of userRecord.
                 console.log('Successfully created new user:', userRecord.uid);
 
@@ -79,38 +38,43 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
                     "birthDate": data.birthDate,
                     "disabled": false,
                     "role": "inter",
+                    'onDemand': false,
                     'communicationMethod': data.communicationMethod
-            
                 }
-                let batch = db.batch();
-                let setInter = db.collection('inters-data').doc(userRecord.uid);
-            
-                batch.set(setInter, JSON.parse(JSON.stringify(inter)));
-            
-                // change role of user to Interpreter
-                let changeRole = db.collection('users').doc(userRecord.uid);
-            
-                batch.set(changeRole, { "role": "inter" }, { "merge": true });
-            
-                // Commit the batch
-                return batch.commit().then(function () {
-            
-                    return true;
-                }).catch(err => {
-                    return err
-                })
+                setTimeout(() => {
+
+                    let batch = db.batch();
+                    let setInter = db.collection('inters-data').doc(userRecord.uid);
+
+                    batch.set(setInter, JSON.parse(JSON.stringify(inter)));
+
+                    // change role of user to Interpreter
+                    let changeRole = db.collection('users').doc(userRecord.uid);
+
+                    batch.set(changeRole, { "role": "inter" }, { "merge": true });
+
+                    // Commit the batch
+                    return batch.commit().then(function () {
+
+                        return true;
+                    }).catch(err => {
+                        return err
+                    })
+                }, 2);
                 // change phone to +972 and take of the 0 in the start 
-
+                return 'user created  : ' + userRecord.uid
                 // validate code
-
-          
             }).catch(err => {
                 return err
             })
+        answer = req.then(answer => {
+            return answer
+        })
+        return answer
 
     } else {
 
-        admin.auth().createUser(
+        req = admin.auth().createUser(
             {
                 phoneNumber: phone,
                 password: data.password,
@@ -119,13 +83,16 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
             })
             .then((userRecord) => {
                 // See the UserRecord reference doc for the contents of userRecord.
+                if (userRecord.uid == null) {
+                    console.log('the user not craeted')
+                    return 'the user NOT created'
+                }
                 console.log('Successfully created new user:', userRecord.uid);
 
                 if (!userRecord.uid) {
                     return "Missing: data of inter on demand"
 
                 }
-
 
                 const inter = {
                     "interpreterID": userRecord.uid,
@@ -141,34 +108,120 @@ exports.CreateInterTest = functions.https.onCall((data, context) => {
                     "birthDate": data.birthDate,
                     "disabled": false,
                     "role": "inter",
+                    'onDemand': false,
                     'communicationMethod': data.communicationMethod
-            
+
                 }
-          
-                let batch = db.batch();
-                let setInter = db.collection('inters-data').doc(userRecord.uid);
-            
-                batch.set(setInter, JSON.parse(JSON.stringify(inter)));
-            
-                // change role of user to Interpreter
-                let changeRole = db.collection('users').doc(userRecord.uid);
-            
-                batch.set(changeRole, { "role": "inter" }, { "merge": true });
-            
-                // Commit the batch
-                return batch.commit().then(function () {
-            
-                    return true;
-                }).catch(err => {
-                    return err
-                })
-          
-            
+                setTimeout(() => {
+
+                    let batch = db.batch();
+                    let setInter = db.collection('inters-data').doc(userRecord.uid);
+
+                    batch.set(setInter, JSON.parse(JSON.stringify(inter)));
+
+                    // change role of user to Interpreter
+                    let changeRole = db.collection('users').doc(userRecord.uid);
+
+                    batch.set(changeRole, { "role": "inter" }, { "merge": true });
+
+                    // Commit the batch
+                    return batch.commit().then(function () {
+
+                        return true;
+                    }).catch(err => {
+                        return err
+                    })
+
+
+                }, 2);
+                return 'user created  : ' + userRecord.uid
             }).catch(err => {
                 return err
             })
+        answer = req.then(answer => {
+            return answer
+        })
+        return answer
+
     }
 })
+
+exports.UpdateInterOneVal = functions.https.onCall((data, context) => {
+
+    let update = utils.UpdateEntity(data.interID, "inters-data", data.key, data.val).then(answer => {
+        return answer
+    })
+
+})
+
+// will get interID and go to his working hours object
+exports.InsertHoursOfWork = functions.https.onCall((data, context) => {
+    let availabilityTime = {
+        "Sunday": [{
+            'start': '03/08/2021 11:00:00',
+            'end': '03/08/2021 12:00:00'
+        },
+        {
+            'start': '3/8/2021 14:00:00',
+            'end': '3/8/2021 16:00:00'
+        }],
+        "Monday": [{
+            'start': '3/4/2021 11:00:00',
+            'end': '3/4/2021 12:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+        "Sunday": [{
+            'start': '3/4/2021 11:00:00',
+            'end': '3/4/2021 12:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+        "Sunday": [{
+            'start': '3/4/2021 11:00:00',
+            'end': '3/4/2021 12:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+        "Sunday": [{
+            'start': '3/4/2021 11:00:00',
+            'end': '3/4/2021 12:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+        "Sunday": [{
+            'start': '3/4/2021 11:00:00',
+            'end': '3/4/2021 12:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+        "Sunday": [{
+            'start': '08/04/2021 11:00:00',
+            'end': '08/04/2021 16:00:00'
+        },
+        {
+            'start': '3/4/2021 14:00:00',
+            'end': '3/4/2021 16:00:00'
+        }],
+    }
+    // save in obj the new hours
+    // console.log(moment(d).valueOf());
+    // console.log(moment(d).format('HH:mm:ss'));
+  
+        let answer = utils.IsTimeValidInner(availabilityTime.Sunday[0].start,availabilityTime.Sunday[0].end)
+    return answer
+})
+
 
 exports.InterBookEvent = functions.https.onCall(async (data, context) => {
     try {
@@ -178,11 +231,11 @@ exports.InterBookEvent = functions.https.onCall(async (data, context) => {
         console.log(data.gEventId)
         // get Name
         const interData = await utils.GetEntity("inters-data", context.auth.uid);
-        const docUpdated = {    
+        const docUpdated = {
             interName: interData.fullName,
             occupied: true,
             interID: context.auth.uid,
-            gEventId:data.gEventId,
+            gEventId: data.gEventId,
             link: data.link,
             eventBookedTime: new Date().getTime()
 

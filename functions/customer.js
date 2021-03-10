@@ -4,61 +4,15 @@ const utils = require('./utils')
 
 const db = admin.firestore();
 
+
 exports.CreateCustomer = functions.https.onCall((data, context) => {
-
-    if (!data.customerID) {
-        return "Missing: customerID"
-    }
-    if (!data.cardID) {
-        return "Missing: cardID"
-    }
-    if (!data.code) {
-        return "Missing: code"
-    }
-    const customer = {
-        "customerID": data.customerID,
-        "cardID": data.cardID,
-        "phone": data.phone,
-        "address": data.address,
-        'identityNumber': data.identityNumber,
-        'password': data.password,
-        "fullName": data.fullName,
-        "birthDate": data.birthDate,
-        "disabled": false,
-        "role": 'customer',
-        "code": data.code,
-    }
-    // change phone to +972 and take of the 0 in the start 
-    customer.phone = "+972" + parseInt(customer.phone)
-    // validate code
-
-    let batch = db.batch();
-
-    let setCustomer = db.collection('customers-data').doc(data.customerID);
-
-    batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
-
-    let changeRole = db.collection('users').doc(data.customerID);
-    let changeCode = db.collection('users').doc(data.customerID);
-
-    batch.set(changeCode, { "code": data.code }, { "merge": true });
-    batch.set(changeRole, { "role": "customer" }, { "merge": true });
-
-    return batch.commit().then(function () {
-        return true;
-    }).catch(err => {
-        return err
-    })
-})
-
-
-exports.CreateCustomerTest = functions.https.onCall((data, context) => {
-
+    let req = {}
+    let answer = {}
     let phone = "+972" + parseInt(data.phone)
+    console.log(data)
+    if (data['email'] !== undefined) {
 
-    if (data.communicationMethod == "email") {
-
-        admin.auth().createUser(
+        req = admin.auth().createUser(
             {
                 email: data.email,
                 phoneNumber: phone,
@@ -70,13 +24,12 @@ exports.CreateCustomerTest = functions.https.onCall((data, context) => {
             .then((userRecord) => {
                 // See the UserRecord reference doc for the contents of userRecord.
                 console.log('Successfully created new user:', userRecord.uid);
-
                 if (!userRecord.uid || !data.code || !data.phone || !data.identityNumber) {
                     return "Missing: data of customer on demand"
-
                 }
 
                 const customer = {
+
                     "customerID": userRecord.uid,
                     "cardID": data.cardID,
                     "phone": data.phone,
@@ -95,31 +48,38 @@ exports.CreateCustomerTest = functions.https.onCall((data, context) => {
                 // change phone to +972 and take of the 0 in the start 
 
                 // validate code
+                setTimeout(() => {
 
-                let batch = db.batch();
+                    let batch = db.batch();
 
-                let setCustomer = db.collection('customers-data').doc(userRecord.uid);
+                    let setCustomer = db.collection('customers-data').doc(userRecord.uid);
 
-                batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
+                    batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
 
-                let changeRole = db.collection('users').doc(userRecord.uid);
-                let changeCode = db.collection('users').doc(userRecord.uid);
+                    let changeRole = db.collection('users').doc(userRecord.uid);
+                    let changeCode = db.collection('users').doc(userRecord.uid);
 
-                batch.set(changeCode, { "code": data.code }, { "merge": true });
-                batch.set(changeRole, { "role": "customer" }, { "merge": true });
+                    batch.set(changeCode, { "code": data.code }, { "merge": true });
+                    batch.set(changeRole, { "role": "customer" }, { "merge": true });
 
-                return batch.commit().then(function () {
-                    return true;
-                }).catch(err => {
-                    return err
-                })
+                    return batch.commit().then(function () {
+                        return true;
+                    }).catch(err => {
+                        return err
+                    })
+                }, 2);
+                return 'user created  : ' + userRecord.uid
             }).catch(err => {
                 return err
             })
+        answer = req.then(answer => {
+            return answer
+        })
+        return answer
 
     } else {
 
-        admin.auth().createUser(
+        req = admin.auth().createUser(
             {
                 phoneNumber: phone,
                 password: data.password,
@@ -154,27 +114,35 @@ exports.CreateCustomerTest = functions.https.onCall((data, context) => {
                 // change phone to +972 and take of the 0 in the start 
 
                 // validate code
+                setTimeout(() => {
 
-                let batch = db.batch();
+                    let batch = db.batch();
 
-                let setCustomer = db.collection('customers-data').doc(userRecord.uid);
+                    let setCustomer = db.collection('customers-data').doc(userRecord.uid);
 
-                batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
+                    batch.set(setCustomer, JSON.parse(JSON.stringify(customer)));
 
-                let changeRole = db.collection('users').doc(userRecord.uid);
-                let changeCode = db.collection('users').doc(userRecord.uid);
+                    let changeRole = db.collection('users').doc(userRecord.uid);
+                    let changeCode = db.collection('users').doc(userRecord.uid);
 
-                batch.set(changeCode, { "code": data.code }, { "merge": true });
-                batch.set(changeRole, { "role": "customer" }, { "merge": true });
+                    batch.set(changeCode, { "code": data.code }, { "merge": true });
+                    batch.set(changeRole, { "role": "customer" }, { "merge": true });
 
-                return batch.commit().then(function () {
-                    return true;
-                }).catch(err => {
-                    return err
-                })
+                    return batch.commit().then(function () {
+                        return true;
+                    }).catch(err => {
+                        return err
+                    })
+                }, 2)
+                return 'user created  : ' + userRecord.uid
             }).catch(err => {
                 return err
             })
+        answer = req.then(answer => {
+            return answer
+        })
+        return answer
+
     }
 })
 exports.CreateCustomerOnDemand = functions.https.onCall((data, context) => {
@@ -258,36 +226,37 @@ exports.GetAllCustomers = functions.https.onCall(async (data, context) => {
     snapshot.forEach(doc => {
         arr.push(doc.data())
     });
-    
+
     return arr
 
 })
 
 
-exports.EmailValidation = functions.https.onCall(async (data, context) => {
+// exports.EmailValidation = functions.https.onCall(async (data, context) => {
 
-    const customersRef = db.collection('users')
+//     const customersRef = db.collection('users')
 
-    const snapshot = await customersRef.where("email", "==", data.email).get();
-    console.log(snapshot.docs)
-    if (snapshot.empty) {
-        console.log('No matching documents => creating new user ');
-    }
-    if (!snapshot.empty) {
+//     const snapshot = await customersRef.where("email", "==", data.email).get();
+//     console.log(snapshot.docs)
+//     if (snapshot.empty) {
+//         console.log('No matching documents => creating new user ');
+//     }
+//     if (!snapshot.empty) {
 
-        if (snapshot.docs.disabled) {
-            // update
+//         if (snapshot.docs.disabled) {
+//             // update
 
-            return "this is a known email with a non-active account "
-        }
-        else {
+//             return "this is a known email with a non-active account "
+//         }
+//         else {
 
-            return "this email is taken with an active account"
-        }
-    }
-})
+//             return "this email is taken with an active account"
+//         }
+//     }
+// })
 
-exports.UpdateCustomer = functions.https.onCall((data, context) => {
+exports.UpdateCustomerOneVal = functions.https.onCall((data, context) => {
+
     let update = utils.UpdateEntity(data.customerID, "customers-data", data.key, data.val).then(answer => {
         return answer
     })
@@ -320,16 +289,16 @@ exports.CreateCustomerRating = functions.https.onCall((data, context) => {
 
 })
 
-exports.CheckCustomerCredit = functions.https.onCall(async (data, context) => {
-    let credit = await db.collection("orginization").doc(data.orginizationID).get()
-    db
-    creditLeft = credit.data().hours - bank - credit.data().credit - used
+// exports.CheckCustomerCredit = functions.https.onCall(async (data, context) => {
+//     let credit = await db.collection("orginization").doc(data.orginizationID).get()
+//     db
+//     creditLeft = credit.data().hours - bank - credit.data().credit - used
 
-    // get all user and get a count of all credits in this month
+//     // get all user and get a count of all credits in this month
 
 
-    if (creditLeft <= 0) {
-        return "you dont have more credit"
-    }
-    return `you have ${creditLeft} credit left`
-})
+//     if (creditLeft <= 0) {
+//         return "you dont have more credit"
+//     }
+//     return `you have ${creditLeft} credit left`
+// })

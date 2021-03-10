@@ -1,14 +1,6 @@
 {
   "projects": {
-    "default": "signplus-295808"
-  },
-  "targets": {
-    "signplus-295808": {
-      "hosting": {
-        "signowvideo": [
-          "signowvideo"
-        ]
-      }
-    }
+    "default": "dev-signow",
+    "dev": "dev-signow"
   }
 }

@@ -1,7 +1,8 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 // import xlsxFile from 'read-excel-file'
-
+var moment = require('moment'); // require
+moment().format();
 const db = admin.firestore();
 const { backup, backups, initializeApp, restore } = require('firestore-export-import')
 
@@ -10,7 +11,7 @@ exports.UpdateEntity = (async (uid, ref, key, val) => {
   obj[key] = val
   const entityRef = db.collection(ref).doc(uid);
 
-  const res = await entityRef.update({[key]:val})
+  const res = await entityRef.update({ [key]: val })
 
   console.log('Update: ', res);
 
@@ -24,7 +25,7 @@ exports.UpdateAllCollection = (async (ref, key, val) => {
   db.collection(ref).get().then(function (querySnapshot) {
     querySnapshot.forEach(function (doc) {
       doc.ref.update({
-        [key]:val
+        [key]: val
       });
     });
   });
@@ -98,6 +99,31 @@ exports.IsTimeValid = functions.https.onCall(async (data, context) => {
   let now = new Date()
   var beginningTime = moment('9am', 'h');
   var endTime = moment('12am', 'h');
+  let isTimeValid = true
+
+  if (!beginningTime.isBefore(now) || !endTime.isAfter(now)) {
+    isTimeValid = false
+
+  }
+
+  return isTimeValid
+})
+
+
+exports.IsTimeValidInner = (async (beginningTime, endTime) => {
+  //  validate time if now is between 09:00 to 12:00 
+  //  if true "isTimeValid" true 
+  //  else "isTimeValid" false
+  let now = new Date()
+  beginningTime = moment(beginningTime)
+  endTime = moment(endTime)
+  now = moment(now)
+
+
+  console.log( endTime)
+  console.log( beginningTime)
+  console.log(endTime.isAfter(now))
+  console.log( beginningTime.isAfter(now))
   let isTimeValid = true
 
   if (!beginningTime.isBefore(now) || !endTime.isAfter(now)) {

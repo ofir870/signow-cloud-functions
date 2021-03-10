@@ -4,68 +4,70 @@ const admin = require('firebase-admin');
 const { backup, backups, initializeApp, restore } = require('firestore-export-import')
 admin.initializeApp();
 
-
 const customer = require('./customer')
 exports.CreateCustomer = customer.CreateCustomer
 exports.CreateCustomerRating = customer.CreateCustomerRating
 exports.GetAllCustomers = customer.GetAllCustomers
-exports.EmailValidation = customer.EmailValidation
 exports.GetCustomerNameById = customer.GetCustomerNameById
 exports.CreateCustomerOnDemand = customer.CreateCustomerOnDemand
-exports.CreateCustomerTest = customer.CreateCustomerTest
-exports.UpdateCustomer = customer.UpdateCustomer
+exports.UpdateCustomerOneVal = customer.UpdateCustomerOneVal
+// exports.EmailValidation = customer.EmailValidation
 // exports.CheckCustomerCredit = customer.CheckCustomerCredit
-
-
-// var data = require('./path/to/testData.json');
-// myFunction(data);
 
 const inter = require('./inter')
 exports.CreateInter = inter.CreateInter
 exports.GetAllInters = inter.GetAllInters
 exports.GetInterNameById = inter.GetInterNameById
 exports.InterBookEvent = inter.InterBookEvent
-exports.CreateInterTest = inter.CreateInterTest
+exports.UpdateInterOneVal = inter.UpdateInterOneVal
+exports.InsertHoursOfWork = inter.InsertHoursOfWork
 // exports.SendInterToServer = inter.SendInterToServer
 // exports.interAnswer = inter.interAnswer
 
-const eventsOD = require('./onDemantEvents')
-exports.CreateOnDemandEvent = eventsOD.CreateOnDemandEvent
-exports.UpdateODM = eventsOD.UpdateODM
-
-const events = require('./events')
-exports.CreateEvent = events.CreateEvent
-exports.CreateEventTest = events.CreateEventTest
-exports.UpdateEvent = events.UpdateEvent
-exports.DeleteEventById = events.DeleteEventById
-exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
-exports.GetAllEvents = events.GetAllEvents
-exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
-exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomerId
-exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
-exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
-exports.DeletePastEvents = events.DeletePastEvents
-exports.UpdateEventTime = events.UpdateEventTime
-exports.GetEventById = events.GetEventById
-exports.GetHistoriesEventsByUserId = events.GetHistoriesEventsByUserId
 
 const orginization = require('./orginization')
 exports.CreateOrginization = orginization.CreateOrginization
 exports.GetAllOrginizationCustomers = orginization.GetAllOrginizationCustomers
 exports.GetAllOrginizations = orginization.GetAllOrginizations
 exports.UpdateOrginization = orginization.UpdateOrginization
-exports.GetOrginizations = orginization.GetOrginizations
 exports.GetOrginizationNameByCode = orginization.GetOrginizationNameByCode
 exports.GetOrginizationCreditByCode = orginization.GetOrginizationCreditByCode
 exports.CheckOrginizationAbility = orginization.CheckOrginizationAbility
+exports.CreateOrginizationTest = orginization.CreateOrginizationTest
 
 const triggers = require('./triggers')
-exports.ChangeRoleCustomer = triggers.ChangeRoleCustomer
-exports.ChangeRoleInter = triggers.ChangeRoleInter
 exports.OnDelete = triggers.OnDelete
 exports.OnUserSignUp = triggers.OnUserSignUp
-exports.onUpdateEvent = triggers.onUpdateEvent
 exports.OnCreateEvent = triggers.OnCreateEvent
+exports.OnDeleteODMEvent = triggers.OnDeleteODMEvent
+
+
+const onDemand = require('./onDemandEvents')
+exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
+exports.InterBookEventOnDemand = onDemand.InterBookEventOnDemand
+exports.IsInterOnDemand = onDemand.IsInterOnDemand
+exports.GetAllEventsOnDemand = onDemand.GetAllEventsOnDemand
+exports.DeleteODEventByCustomerId = onDemand.DeleteODEventByCustomerId
+exports.FinishODM = onDemand.FinishODM
+
+
+
+const events = require('./events')
+exports.CreateEvent = events.CreateEvent
+exports.UpdateEvent = events.UpdateEvent
+exports.DeleteEventById = events.DeleteEventById
+exports.DeletePastEvents = events.DeletePastEvents
+exports.GetAllOccupiedEvents = events.GetAllOccupiedEvents
+exports.GetAllEvents = events.GetAllEvents
+exports.GetAllNotOccupiedEvents = events.GetAllNotOccupiedEvents
+exports.GetHistoryEventsByUserId = events.GetHistoryEventsByUserId
+exports.GetHistoryEvents = events.GetHistoryEvents
+exports.GetAllEventsOccupiedByCustomerId = events.GetAllEventsOccupiedByCustomerId
+exports.GetAllOccupiedEventsByInterId = events.GetAllOccupiedEventsByInterId
+exports.GetAllEventsNotOccupiedByCustomerId = events.GetAllEventsNotOccupiedByCustomerId
+exports.GetAllEventsWithHistory = events.GetAllEventsWithHistory
+exports.GetEventById = events.GetEventById
+exports.CheckIfEventNowAdmin = events.CheckIfEventNowAdmin
 
 const userActions = require('./userActions')
 exports.UpdateLastLogin = userActions.UpdateLastLogin
@@ -77,6 +79,7 @@ exports.GetPasswordByEmail = userActions.GetPasswordByEmail
 exports.GetPasswordByPhone = userActions.GetPasswordByPhone
 exports.GetAuthenticatedUser = userActions.GetAuthenticatedUser
 exports.GetPhoneById = userActions.GetPhoneById
+exports.CheckIfPhoneExsits = userActions.CheckIfPhoneExsits
 exports.CheckIfEventNow = userActions.CheckIfEventNow
 exports.LinkUserWithPhoneNumber = userActions.LinkUserWithPhoneNumber
 exports.LinkAllIntersWithPhoneNumber = userActions.LinkAllIntersWithPhoneNumber
@@ -90,16 +93,14 @@ exports.ScheduledEmailMessage = messages.ScheduledEmailMessage
 exports.SendEmailVerifications = messages.SendEmailVerifications
 exports.ReplySMS = messages.ReplySMS
 
+const notification = require('./notificationService')
+exports.notification = notification.SaveToken
+
 const utils = require('./utils')
 exports.CodeValidation = utils.CodeValidation
 exports.GetEntityValue = utils.GetEntityValue
 exports.IsTimeValid = utils.IsTimeValid
 
-const onDemand = require('./onDemantEvents')
-exports.CreateOnDemandEvent = onDemand.CreateOnDemandEvent
-exports.InterBookEventOnDemand = onDemand.InterBookEventOnDemand
-exports.IsInterOnDemand = onDemand.IsInterOnDemand
-exports.GetAllEventsOnDemand = onDemand.GetAllEventsOnDemand
 
 /* VideoChat Serving app */
 //import dependencies
