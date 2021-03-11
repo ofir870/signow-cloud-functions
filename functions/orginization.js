@@ -6,7 +6,6 @@ const db = admin.firestore();
 
 exports.CreateOrginization = functions.https.onCall((data, context) => {
 
-
     if (!data.fullName) {
         return "Missing: fullName"
     }

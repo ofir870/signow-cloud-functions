@@ -5,7 +5,6 @@ const { auth } = require('firebase-admin');
 const { user } = require('firebase-functions/lib/providers/auth');
 const db = admin.firestore();
 
-
 exports.GetAllNames = functions.https.onCall(async (data, context) => {
   // get inter data names
   // get customers data names
@@ -97,7 +96,6 @@ exports.LinkUserWithPhoneNumber = functions.https.onCall(async (data, context) =
     console.log('No matching documents.');
     return;
   }
-
 
   let phone = doc.data().phone
   let newPhone = doc.data().phone
@@ -266,8 +264,18 @@ exports.HandleLogin = functions.https.onCall(async (data, context) => {
     // preform a phone handle login
   }
 })
+exports.IsConnected = functions.https.onCall((data, context) => {
 
+  if (!context.auth) {
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
+      'while authenticated.');
+  }
 
+  else {
+    return true
+  }
+})
 exports.UpdateLastLogin = functions.https.onCall((data, context) => {
 
   const newLastLogin = {

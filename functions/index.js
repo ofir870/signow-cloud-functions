@@ -84,6 +84,7 @@ exports.CheckIfEventNow = userActions.CheckIfEventNow
 exports.LinkUserWithPhoneNumber = userActions.LinkUserWithPhoneNumber
 exports.LinkAllIntersWithPhoneNumber = userActions.LinkAllIntersWithPhoneNumber
 exports.DeleteUserById = userActions.DeleteUserById
+exports.IsConnected = userActions.IsConnected
 
 const messages = require('./messages')
 exports.SendEmail = messages.SendEmail
